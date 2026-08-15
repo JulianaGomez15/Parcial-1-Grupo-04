@@ -1,4 +1,4 @@
 package application;
 
-public class TestExercise extends Exercise{
+public class TestExercise {
 }
