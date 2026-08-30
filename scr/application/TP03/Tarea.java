@@ -29,7 +29,7 @@ public class Tarea {
 
     public String toString() {
         String estado = completada ? "COMPLETADO" : "PENDIENTE";
-        return titulo + " " + estado;
+        return titulo + " " + "Creada: " + this.fechaCreacion + " " + estado;
     }
 
 }
