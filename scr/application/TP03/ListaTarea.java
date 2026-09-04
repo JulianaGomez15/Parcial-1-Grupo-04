@@ -1,6 +1,6 @@
 package application.TP03;
 
-public class ListaTarea {
+public class ListaTarea implements InterfaceListaTarea {
 
     private Tarea[] listaTareas;
 
@@ -12,6 +12,7 @@ public class ListaTarea {
         // creacion de nuevo array con size por defecto.
     }
 
+    @Override
     public boolean addTarea(Tarea tarea) { // insertar a lo ultimo
         if (size >= listaTareas.length) {
             resize();
@@ -21,23 +22,22 @@ public class ListaTarea {
         return true;
     }
 
+    @Override
     public void mostrarLista() {
         for (int i = 0; i < size; i++) { // uso size para no imprimir valores null
-            System.out.println(listaTareas[i].toString());
+            System.out.println((i + 1) + ". " + listaTareas[i]);
         }
     }
 
     private void resize() {
-        // creacion de nuevo array del doble de largo
         Tarea[] nextArray = new Tarea[listaTareas.length * 2];
-
-        // copiamos lo q esta en el array al nuevo con un bucle
         for (int i = 0; i < listaTareas.length; i++) {
             nextArray[i] = listaTareas[i];
         }
         listaTareas = nextArray;
     }
 
+    @Override
     public boolean eliminarPorTitulo(String titulo) {
         for (int i = 0; i < size; i++) {
             if (listaTareas[i].getTitulo().equals(titulo)) {
@@ -49,6 +49,7 @@ public class ListaTarea {
         return false;
     }
 
+    @Override
     public boolean buscarTareaParaCompletar(String tit) {
         for (int i = 0; i < size; i++) {
             if (listaTareas[i].getTitulo().equals(tit)) {
@@ -60,22 +61,27 @@ public class ListaTarea {
 
     }
 
+    @Override
     public boolean eliminarPorIndex(int indiceParaEliminar) {
 
         if (indiceParaEliminar >= size || indiceParaEliminar < 0) {
             return false;
         }
-        listaTareas[indiceParaEliminar] = null;
         shiftLeft(indiceParaEliminar);
         size--;
         return true;
     }
 
-    private void shiftLeft(int d) {
-        for (int i = d; i < size - 1; i++) {
+    private void shiftLeft(int index) {
+        for (int i = index; i < size - 1; i++) {
             listaTareas[i] = listaTareas[i + 1];
         }
         listaTareas[size - 1] = null;
     }
 
+    @Override
+    public int size() { return size; }
+
+    @Override
+    public boolean isEmpty() { return size == 0; }
 }

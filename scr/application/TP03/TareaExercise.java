@@ -3,12 +3,11 @@ package application.TP03;
 import java.time.LocalDateTime;
 import java.util.Scanner;
 
-import application.listModule.SimpleArrayList;
 import application.Exercise;
 
 public class TareaExercise extends Exercise {
 
-    private final SimpleArrayList<Tarea> tareas = new SimpleArrayList<>();
+    private final ListaTarea tareas = new ListaTarea();
     private boolean firstTime = true;
 
     public TareaExercise(Scanner scanner) {
@@ -84,7 +83,7 @@ public class TareaExercise extends Exercise {
         System.out.println("\nIngrese el título de la tarea:");
         String titulo = scanner.nextLine();
 
-        tareas.add(new Tarea(titulo, LocalDateTime.now(), null, null));
+        tareas.addTarea(new Tarea(titulo, LocalDateTime.now(), null, null));
         System.out.println("\nTarea agregada correctamente.");
 
         currentPhase = 0;
@@ -100,9 +99,7 @@ public class TareaExercise extends Exercise {
             System.out.println("\nNo hay tareas cargadas.");
             return;
         }
-        for (int i = 0; i < tareas.size(); i++) {
-            System.out.println((i + 1) + ". " + tareas.get(i));
-        }
+        tareas.mostrarLista();
     }
 
     private void completeLogic() {
@@ -115,13 +112,7 @@ public class TareaExercise extends Exercise {
         System.out.println("\nIngrese el título de la tarea a completar:");
         String titulo = scanner.nextLine();
 
-        boolean encontrada = false;
-        for (int i = 0; i < tareas.size() && !encontrada; i++) {
-            if (tareas.get(i).getTitulo().equals(titulo)) {
-                tareas.get(i).setCompletada();
-                encontrada = true;
-            }
-        }
+        boolean encontrada = tareas.buscarTareaParaCompletar(titulo);
 
         System.out.println(encontrada ? "\nTarea completada." : "\nNo se encontró esa tarea.");
         currentPhase = 0;
@@ -137,13 +128,7 @@ public class TareaExercise extends Exercise {
         System.out.println("\nIngrese el título de la tarea a eliminar:");
         String titulo = scanner.nextLine();
 
-        boolean eliminada = false;
-        for (int i = 0; i < tareas.size() && !eliminada; i++) {
-            if (tareas.get(i).getTitulo().equals(titulo)) {
-                tareas.remove(i);
-                eliminada = true;
-            }
-        }
+        boolean eliminada = tareas.eliminarPorTitulo(titulo);
 
         System.out.println(eliminada ? "\nTarea eliminada." : "\nNo se encontró esa tarea.");
         currentPhase = 0;
@@ -167,12 +152,8 @@ public class TareaExercise extends Exercise {
         int index = scanner.nextInt();
         scanner.nextLine();
 
-        try {
-            tareas.remove(index - 1);
-            System.out.println("\nTarea eliminada.");
-        } catch (IndexOutOfBoundsException e) {
-            System.out.println("\nÍndice inválido.");
-        }
+        boolean eliminada = tareas.eliminarPorIndex(index - 1);
+        System.out.println(eliminada ? "\nTarea eliminada." : "\nÍndice inválido.");
 
         currentPhase = 0;
     }
