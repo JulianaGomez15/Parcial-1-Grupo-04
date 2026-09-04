@@ -13,16 +13,24 @@ public class Tarea {
     protected LocalDateTime fechaLimite;
 
     public Tarea(String tit, LocalDateTime fCreacion, LocalDateTime fCompletada, LocalDateTime fLimite) {
+        if (tit == null || tit.trim().isEmpty()) {
+            throw new IllegalArgumentException("El título no puede estar vacío.");
+        }
         titulo = tit;
         fechaCreacion = fCreacion; /* fecha de ahora */
         fechaCompletada = fCompletada;
         fechaLimite = fLimite;
     }
 
-    protected void setCompletada() {
+    // ahora viene del reloj simulado, no de LocalDateTime.now()
+    protected void setCompletada(LocalDateTime ahora) {
         this.completada = true;
-        this.fechaCompletada = LocalDateTime.now();
+        this.fechaCompletada = ahora;
         /* setear fecha de complitud */
+    }
+
+    public boolean estaAtrasada(LocalDateTime ahora) {
+        return !completada && fechaLimite != null && ahora.isAfter(fechaLimite);
     }
 
     public String getTitulo() {
@@ -31,7 +39,11 @@ public class Tarea {
 
     public String toString() {
         String estado = completada ? "COMPLETADO" : "PENDIENTE";
-        return titulo + " " + "Creada: " + this.fechaCreacion.format(FORMATO_FECHA) + " " + estado;
+        String texto = titulo + " " + "Creada: " + this.fechaCreacion.format(FORMATO_FECHA) + " " + estado;
+        if (fechaLimite != null) {
+            texto += " | Limite: " + fechaLimite.format(FORMATO_FECHA);
+        }
+        return texto;
     }
 
 }

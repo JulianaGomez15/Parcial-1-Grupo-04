@@ -1,5 +1,7 @@
 package application.TP03;
 
+import java.time.LocalDateTime;
+
 public class ListaTarea implements InterfaceListaTarea {
 
     private Tarea[] listaTareas;
@@ -14,6 +16,9 @@ public class ListaTarea implements InterfaceListaTarea {
 
     @Override
     public boolean addTarea(Tarea tarea) { // insertar a lo ultimo
+        if (tarea == null) {
+            throw new IllegalArgumentException("La tarea no puede ser null.");
+        }
         if (size >= listaTareas.length) {
             resize();
         }
@@ -24,8 +29,17 @@ public class ListaTarea implements InterfaceListaTarea {
 
     @Override
     public void mostrarLista() {
+        mostrarLista(null);
+    }
+
+    @Override
+    public void mostrarLista(LocalDateTime ahora) {
         for (int i = 0; i < size; i++) { // uso size para no imprimir valores null
-            System.out.println((i + 1) + ". " + listaTareas[i]);
+            String linea = (i + 1) + ". " + listaTareas[i];
+            if (ahora != null && listaTareas[i].estaAtrasada(ahora)) {
+                linea += " [ATRASADA]";
+            }
+            System.out.println(linea);
         }
     }
 
@@ -50,10 +64,10 @@ public class ListaTarea implements InterfaceListaTarea {
     }
 
     @Override
-    public boolean buscarTareaParaCompletar(String tit) {
+    public boolean buscarTareaParaCompletar(String tit, LocalDateTime ahora) {
         for (int i = 0; i < size; i++) {
             if (listaTareas[i].getTitulo().equals(tit)) {
-                listaTareas[i].setCompletada();
+                listaTareas[i].setCompletada(ahora);
                 return true;
             }
         }
@@ -65,7 +79,7 @@ public class ListaTarea implements InterfaceListaTarea {
     public boolean eliminarPorIndex(int indiceParaEliminar) {
 
         if (indiceParaEliminar >= size || indiceParaEliminar < 0) {
-            return false;
+            throw new IndexOutOfBoundsException();
         }
         shiftLeft(indiceParaEliminar);
         size--;
