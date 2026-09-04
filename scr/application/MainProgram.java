@@ -2,6 +2,7 @@ package application;
 
 import java.util.Scanner;
 
+import application.TP03.TareaExercise;
 import application.listModule.ListExercise;
 
 public class MainProgram {
@@ -33,7 +34,8 @@ public class MainProgram {
 		System.out.println("Selecciona un ejercicio:"
 				+ "\n0: TestExercise"
 				+ "\n1: ListExercise"
-				+ "\n2: Salir");
+				+ "\n2: TP03 - TareaExercise"
+				+ "\n3: Salir");
 		
 		// Guardamos lo que escribe el usuario
 		String userInput = scanner.nextLine();
@@ -48,6 +50,9 @@ public class MainProgram {
 				exercise = new ListExercise(scanner);
 				break;
 			case "2":
+				exercise = new TareaExercise(scanner);
+				break;
+			case "3":
 				running = false;
 				break;
 			default:

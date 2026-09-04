@@ -1,14 +1,14 @@
-package TP03;
+package application.TP03;
 
 import java.time.LocalDateTime;
 import java.util.Scanner;
 
-import TP2ListModule.SimpleArrayList;
+import application.listModule.SimpleArrayList;
 import application.Exercise;
 
 public class TareaExercise extends Exercise {
 
-    private SimpleArrayList<Tarea> tareas = new SimpleArrayList<>();
+    private final SimpleArrayList<Tarea> tareas = new SimpleArrayList<>();
     private boolean firstTime = true;
 
     public TareaExercise(Scanner scanner) {

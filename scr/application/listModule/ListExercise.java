@@ -1,10 +1,11 @@
 package application.listModule;
 
+import application.Exercise;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import application.Exercise;
 
 public class ListExercise extends Exercise {
 	private List<String> list = new ArrayList<String>();
@@ -103,21 +104,22 @@ public class ListExercise extends Exercise {
 		
 		System.out.println("\nIngrese el indice a remover:");
 				
-		while(!scanner.hasNextInt()){
+		while(!scanner.hasNextInt())
+		{
 			System.out.println("\nRespuesta invalida, ingrese un numero.");
 			scanner.nextLine();
 		}
-		
+			
 		int index = scanner.nextInt();
-		scanner.nextLine(); // Limpiar el buffer
-
-		if(index < 0 || index >= list.size()){
+		scanner.nextLine();
+		
+		if(index < 0 || index >= list.size())
+		{
 			System.out.println("\nIndice invalido: menor a 0 o mayor a la cantidad de elementos.");
 			return;
 		}
 		String element = list.remove(index);
 		System.out.println("\n" + element + " removido.");
-
 		
 		repeatOperationCheck("\nRemover otro elemento? s/n");
 	}
@@ -159,6 +161,7 @@ public class ListExercise extends Exercise {
 	
 	private void printList()
 	{
+		if(list.isEmpty()) return;
 		String message = "";
 		
 		for(int i = 0; i < list.size(); i++)

@@ -1,4 +1,4 @@
-package LinkedModule;
+package application.linkedModule;
 
 public class LinkedNode<E> {
 
@@ -10,4 +10,3 @@ public class LinkedNode<E> {
         this.value = value;
     }
 }
-
