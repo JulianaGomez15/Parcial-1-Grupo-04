@@ -1,5 +1,7 @@
 package application.TP03;
 
+import java.time.LocalDateTime;
+
 public class ListaTarea {
 
     private Tarea[] listaTareas;
@@ -52,7 +54,7 @@ public class ListaTarea {
     public boolean buscarTareaParaCompletar(String tit) {
         for (int i = 0; i < size; i++) {
             if (listaTareas[i].getTitulo().equals(tit)) {
-                listaTareas[i].setCompletada();
+                listaTareas[i].setCompletada(LocalDateTime.now());
                 return true;
             }
         }

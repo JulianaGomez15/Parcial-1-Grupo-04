@@ -19,10 +19,14 @@ public class Tarea {
         fechaLimite = fLimite;
     }
 
-    protected void setCompletada() {
+    protected void setCompletada(LocalDateTime ahora) {
         this.completada = true;
-        this.fechaCompletada = LocalDateTime.now();
+        this.fechaCompletada = ahora;
         /* setear fecha de complitud */
+    }
+
+    public boolean estaAtrasada(LocalDateTime ahora) {
+        return !completada && fechaLimite != null && ahora.isAfter(fechaLimite);
     }
 
     public String getTitulo() {
@@ -31,7 +35,11 @@ public class Tarea {
 
     public String toString() {
         String estado = completada ? "COMPLETADO" : "PENDIENTE";
-        return titulo + " " + "Creada: " + this.fechaCreacion.format(FORMATO_FECHA) + " " + estado;
+        String texto = titulo + " " + "Creada: " + this.fechaCreacion.format(FORMATO_FECHA) + " " + estado;
+        if (fechaLimite != null) {
+            texto += " | Limite: " + fechaLimite.format(FORMATO_FECHA);
+        }
+        return texto;
     }
 
 }

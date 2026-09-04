@@ -34,7 +34,7 @@ public class MainProgram {
 		System.out.println("Selecciona un ejercicio:"
 				+ "\n0: TestExercise"
 				+ "\n1: ListExercise"
-				+ "\n2: TP03 - TareaExercise"
+				+ "\n2: TP03 - Lista de tareas"
 				+ "\n3: Salir");
 		
 		// Guardamos lo que escribe el usuario

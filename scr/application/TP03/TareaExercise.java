@@ -5,14 +5,21 @@ import java.util.Scanner;
 
 import application.listModule.SimpleArrayList;
 import application.Exercise;
+import application.TP03.simuladorTiempo.SimuladorTiempo;
 
 public class TareaExercise extends Exercise {
 
     private final SimpleArrayList<Tarea> tareas = new SimpleArrayList<>();
+    private final SimuladorTiempo reloj = new SimuladorTiempo(LocalDateTime.of(2026, 1, 1, 8, 0));
     private boolean firstTime = true;
 
     public TareaExercise(Scanner scanner) {
         super(scanner);
+        tareas.add(new Tarea("Entregar TP03", reloj.getTiempoActual(), null, reloj.getTiempoActual().plusHours(2)));
+        tareas.add(new Tarea("Repasar para el parcial", reloj.getTiempoActual(), null, reloj.getTiempoActual().minusHours(1)));
+        Tarea comprarApuntes = new Tarea("Comprar apuntes", reloj.getTiempoActual(), null, reloj.getTiempoActual().plusHours(5));
+        comprarApuntes.setCompletada(reloj.getTiempoActual());
+        tareas.add(comprarApuntes);
     }
 
     @Override
@@ -36,6 +43,9 @@ public class TareaExercise extends Exercise {
             case 5:
                 removeByIndexLogic();
                 break;
+            case 6:
+                advanceTimeLogic();
+                break;
         }
     }
 
@@ -45,12 +55,14 @@ public class TareaExercise extends Exercise {
             firstTime = false;
         }
 
+        System.out.println("\nHora actual: " + reloj.getTiempoFormateado());
         System.out.println("\nSeleccione una opción:"
                 + "\nadd: Agregar tarea"
                 + "\nshow: Mostrar tareas"
                 + "\ncomplete: Marcar tarea como completada"
                 + "\nremove name: Eliminar por título"
                 + "\nremove index: Eliminar por posición"
+                + "\nadvance: Avanzar 1 hora"
                 + "\nmm: Volver al menú");
 
         String userInput = scanner.nextLine().toLowerCase();
@@ -71,6 +83,9 @@ public class TareaExercise extends Exercise {
             case "remove index":
                 currentPhase = 5;
                 break;
+            case "advance":
+                currentPhase = 6;
+                break;
             case "mm":
                 running = false;
                 break;
@@ -84,7 +99,17 @@ public class TareaExercise extends Exercise {
         System.out.println("\nIngrese el título de la tarea:");
         String titulo = scanner.nextLine();
 
-        tareas.add(new Tarea(titulo, LocalDateTime.now(), null, null));
+        System.out.println("\n¿En cuántas horas vence esta tarea? (0 = sin fecha límite):");
+        while (!scanner.hasNextInt()) {
+            System.out.println("\nRespuesta inválida, ingrese un número.");
+            scanner.nextLine();
+        }
+        int horas = scanner.nextInt();
+        scanner.nextLine();
+
+        LocalDateTime fechaLimite = horas > 0 ? reloj.getTiempoActual().plusHours(horas) : null;
+
+        tareas.add(new Tarea(titulo, reloj.getTiempoActual(), null, fechaLimite));
         System.out.println("\nTarea agregada correctamente.");
 
         currentPhase = 0;
@@ -100,8 +125,14 @@ public class TareaExercise extends Exercise {
             System.out.println("\nNo hay tareas cargadas.");
             return;
         }
+        LocalDateTime ahora = reloj.getTiempoActual();
         for (int i = 0; i < tareas.size(); i++) {
-            System.out.println((i + 1) + ". " + tareas.get(i));
+            Tarea tarea = tareas.get(i);
+            String linea = (i + 1) + ". " + tarea;
+            if (tarea.estaAtrasada(ahora)) {
+                linea += " [ATRASADA]";
+            }
+            System.out.println(linea);
         }
     }
 
@@ -118,7 +149,7 @@ public class TareaExercise extends Exercise {
         boolean encontrada = false;
         for (int i = 0; i < tareas.size() && !encontrada; i++) {
             if (tareas.get(i).getTitulo().equals(titulo)) {
-                tareas.get(i).setCompletada();
+                tareas.get(i).setCompletada(reloj.getTiempoActual());
                 encontrada = true;
             }
         }
@@ -174,6 +205,12 @@ public class TareaExercise extends Exercise {
             System.out.println("\nÍndice inválido.");
         }
 
+        currentPhase = 0;
+    }
+
+    private void advanceTimeLogic() {
+        reloj.avanzarUnaHora();
+        System.out.println("\nTiempo avanzado. Hora actual: " + reloj.getTiempoFormateado());
         currentPhase = 0;
     }
 }
