@@ -5,21 +5,29 @@ import java.util.Scanner;
 
 import application.Exercise;
 import application.TP03.simuladorTiempo.SimuladorTiempo;
+import application.listModule.SimpleArrayList;
+import application.listModule.SimpleList;
 
 public class TareaExercise extends Exercise {
 
-    private final ListaTarea tareas = new ListaTarea();
+    // Palabra clave para abortar una operación y volver al menú
+    private static final String CANCELAR = "cancelar";
+
+    private final SimpleList<Tarea> tareas = new SimpleArrayList<Tarea>();
     private final SimuladorTiempo reloj = new SimuladorTiempo(LocalDateTime.of(2026, 9, 4, 16, 0));
     private boolean firstTime = true;
+
+    // Si está en true, la lista se imprime sola en cada vuelta del menú
+    private boolean mostrarSiempre = true;
 
     public TareaExercise(Scanner scanner) {
         super(scanner);
         LocalDateTime ahora = reloj.getTiempoActual(); // viernes 4/9/2026 16:00
-        tareas.addTarea(new Tarea("Entregar TP03", ahora.withHour(9).withMinute(0), null, ahora.plusHours(2)));
-        tareas.addTarea(new Tarea("Repasar para el parcial", ahora.withHour(10).withMinute(30), null, ahora.minusHours(1)));
+        tareas.add(new Tarea("Entregar TP03", ahora.withHour(9).withMinute(0), null, ahora.plusHours(2)));
+        tareas.add(new Tarea("Repasar para el parcial", ahora.withHour(10).withMinute(30), null, ahora.minusHours(1)));
         Tarea comprarApuntes = new Tarea("Comprar apuntes", ahora.withHour(11).withMinute(0), null, ahora.plusHours(5));
         comprarApuntes.setCompletada(ahora.withHour(12).withMinute(0));
-        tareas.addTarea(comprarApuntes);
+        tareas.add(comprarApuntes);
     }
 
     @Override
@@ -29,22 +37,22 @@ public class TareaExercise extends Exercise {
                 menuLogic();
                 break;
             case 1:
-                addLogic();
+                agregarLogic();
                 break;
             case 2:
-                showLogic();
+                mostrarLogic();
                 break;
             case 3:
-                completeLogic();
+                completarLogic();
                 break;
             case 4:
-                removeByNameLogic();
+                eliminarPorTituloLogic();
                 break;
             case 5:
-                removeByIndexLogic();
+                eliminarPorPosicionLogic();
                 break;
             case 6:
-                advanceTimeLogic();
+                avanzarTiempoLogic();
                 break;
         }
     }
@@ -56,35 +64,48 @@ public class TareaExercise extends Exercise {
         }
 
         System.out.println("\nHora actual: " + reloj.getTiempoFormateado());
-        System.out.println("\nSeleccione una opción:"
-                + "\nadd: Agregar tarea"
-                + "\nshow: Mostrar tareas"
-                + "\ncomplete: Marcar tarea como completada"
-                + "\nremove name: Eliminar por título"
-                + "\nremove index: Eliminar por posición"
-                + "\nadvance: Avanzar 1 hora"
-                + "\nmm: Volver al menú");
 
-        String userInput = scanner.nextLine().toLowerCase();
+        // La lista arranca visible, salvo que el usuario la apague con "auto"
+        if (mostrarSiempre) {
+            mostrarTareas();
+        }
+
+        System.out.println("\nSeleccione una opción:"
+                + "\nagregar: Agregar tarea"
+                + "\nmostrar: Mostrar tareas"
+                + "\ncompletar: Marcar tarea como completada"
+                + "\neliminar titulo: Eliminar por título"
+                + "\neliminar posicion: Eliminar por posición"
+                + "\navanzar: Avanzar una hora"
+                + "\nauto: Mostrar la lista en cada paso (actualmente: " + (mostrarSiempre ? "sí" : "no") + ")"
+                + "\nmm: Volver al menú principal");
+
+        String userInput = scanner.nextLine().trim().toLowerCase();
 
         switch (userInput) {
-            case "add":
+            case "agregar":
                 currentPhase = 1;
                 break;
-            case "show":
+            case "mostrar":
                 currentPhase = 2;
                 break;
-            case "complete":
+            case "completar":
                 currentPhase = 3;
                 break;
-            case "remove name":
+            case "eliminar titulo":
                 currentPhase = 4;
                 break;
-            case "remove index":
+            case "eliminar posicion":
                 currentPhase = 5;
                 break;
-            case "advance":
+            case "avanzar":
                 currentPhase = 6;
+                break;
+            case "auto":
+                mostrarSiempre = !mostrarSiempre;
+                System.out.println(mostrarSiempre
+                        ? "\nLa lista se va a mostrar en cada paso."
+                        : "\nLa lista solo se va a mostrar con la opción \"mostrar\".");
                 break;
             case "mm":
                 running = false;
@@ -95,116 +116,191 @@ public class TareaExercise extends Exercise {
         }
     }
 
-    private void addLogic() {
-        System.out.println("\nIngrese el título de la tarea:");
-        String titulo = scanner.nextLine();
-
-        if (titulo == null || titulo.trim().isEmpty()) {
-            System.out.println("\nEl título no puede estar vacío.");
-            currentPhase = 0;
+    private void agregarLogic() {
+        String titulo = pedirTexto("\nIngrese el título de la tarea");
+        if (titulo == null) {
+            volverAlMenu();
             return;
         }
 
-        System.out.println("\n¿En cuántas horas vence esta tarea? (0 = sin fecha límite):");
-        while (!scanner.hasNextInt()) {
-            System.out.println("\nRespuesta inválida, ingrese un número.");
-            scanner.nextLine();
-        }
-        int horas = scanner.nextInt();
-        scanner.nextLine();
-
-        if (horas < 0) {
-            System.out.println("\nLas horas no pueden ser negativas.");
-            currentPhase = 0;
+        Integer horas = pedirEntero("\n¿En cuántas horas vence esta tarea? (0 = sin fecha límite)", 0, Integer.MAX_VALUE);
+        if (horas == null) {
+            volverAlMenu();
             return;
         }
 
         LocalDateTime fechaLimite = horas > 0 ? reloj.getTiempoActual().plusHours(horas) : null;
-        tareas.addTarea(new Tarea(titulo, reloj.getTiempoActual(), null, fechaLimite));
+        tareas.add(new Tarea(titulo, reloj.getTiempoActual(), null, fechaLimite));
         System.out.println("\nTarea agregada correctamente.");
 
-        currentPhase = 0;
+        volverAlMenu();
     }
 
-    private void showLogic() {
-        printList();
-        currentPhase = 0;
+    private void mostrarLogic() {
+        mostrarTareas();
+        volverAlMenu();
     }
 
-    private void printList() {
-        if (tareas.isEmpty()) {
-            System.out.println("\nNo hay tareas cargadas.");
-            return;
-        }
-        tareas.mostrarLista(reloj.getTiempoActual());
-    }
-
-    private void completeLogic() {
-        if (tareas.isEmpty()) {
-            System.out.println("\nNo hay tareas cargadas.");
-            currentPhase = 0;
+    private void completarLogic() {
+        if (listaVacia()) {
             return;
         }
 
-        System.out.println("\nIngrese el título de la tarea a completar:");
-        String titulo = scanner.nextLine();
+        // Si el título no existe, se vuelve a pedir en vez de salir al menú
+        while (true) {
+            String titulo = pedirTexto("\nIngrese el título de la tarea a completar");
+            if (titulo == null) {
+                volverAlMenu();
+                return;
+            }
 
-        boolean encontrada = tareas.buscarTareaParaCompletar(titulo, reloj.getTiempoActual());
+            Tarea tarea = buscarPorTitulo(titulo);
+            if (tarea == null) {
+                System.out.println("\nNo se encontró esa tarea.");
+                continue;
+            }
 
-        System.out.println(encontrada ? "\nTarea completada." : "\nNo se encontró esa tarea.");
-        currentPhase = 0;
+            tarea.setCompletada(reloj.getTiempoActual());
+            System.out.println("\nTarea completada.");
+            volverAlMenu();
+            return;
+        }
     }
 
-    private void removeByNameLogic() {
-        if (tareas.isEmpty()) {
-            System.out.println("\nNo hay tareas cargadas.");
-            currentPhase = 0;
+    private void eliminarPorTituloLogic() {
+        if (listaVacia()) {
             return;
         }
 
-        System.out.println("\nIngrese el título de la tarea a eliminar:");
-        String titulo = scanner.nextLine();
+        while (true) {
+            String titulo = pedirTexto("\nIngrese el título de la tarea a eliminar");
+            if (titulo == null) {
+                volverAlMenu();
+                return;
+            }
 
-        boolean eliminada = tareas.eliminarPorTitulo(titulo);
+            Tarea tarea = buscarPorTitulo(titulo);
+            if (tarea == null) {
+                System.out.println("\nNo se encontró esa tarea.");
+                continue;
+            }
 
-        System.out.println(eliminada ? "\nTarea eliminada." : "\nNo se encontró esa tarea.");
-        currentPhase = 0;
+            tareas.remove(tarea);
+            System.out.println("\nTarea eliminada.");
+            volverAlMenu();
+            return;
+        }
     }
 
-    private void removeByIndexLogic() {
-        if (tareas.isEmpty()) {
-            System.out.println("\nNo hay tareas cargadas.");
-            currentPhase = 0;
+    private void eliminarPorPosicionLogic() {
+        if (listaVacia()) {
             return;
         }
 
-        printList(); // no toca currentPhase, solo imprime
-        System.out.println("\nIngrese la posición a eliminar:");
+        mostrarTareas();
 
-        while (!scanner.hasNextInt()) {
-            System.out.println("\nRespuesta inválida, ingrese un número.");
-            scanner.nextLine();
-        }
-
-        int index = scanner.nextInt();
-        scanner.nextLine();
-
-        // El TDA lanza excepcion si el indice es invalido; aca lo evitamos
-        if (index - 1 < 0 || index - 1 >= tareas.size()) {
-            System.out.println("\nÍndice inválido.");
-            currentPhase = 0;
+        Integer posicion = pedirEntero("\nIngrese la posición a eliminar", 1, tareas.size());
+        if (posicion == null) {
+            volverAlMenu();
             return;
         }
 
-        tareas.eliminarPorIndex(index - 1);
+        tareas.remove(posicion - 1);
         System.out.println("\nTarea eliminada.");
 
+        volverAlMenu();
+    }
+
+    private void avanzarTiempoLogic() {
+        reloj.avanzarUnaHora();
+        System.out.println("\nTiempo avanzado. Hora actual: " + reloj.getTiempoFormateado());
+        volverAlMenu();
+    }
+
+    private void mostrarTareas() {
+        if (tareas.isEmpty()) {
+            System.out.println("\nNo hay tareas cargadas.");
+            return;
+        }
+
+        LocalDateTime ahora = reloj.getTiempoActual();
+        for (int i = 0; i < tareas.size(); i++) {
+            Tarea tarea = tareas.get(i);
+            String linea = (i + 1) + ". " + tarea;
+            if (tarea.estaAtrasada(ahora)) {
+                linea += " [ATRASADA]";
+            }
+            System.out.println(linea);
+        }
+    }
+
+    private Tarea buscarPorTitulo(String titulo) {
+        for (int i = 0; i < tareas.size(); i++) {
+            if (tareas.get(i).getTitulo().equalsIgnoreCase(titulo)) {
+                return tareas.get(i);
+            }
+        }
+        return null;
+    }
+
+    // Corta la operación si no hay nada con que trabajar
+    private boolean listaVacia() {
+        if (tareas.isEmpty()) {
+            System.out.println("\nNo hay tareas cargadas.");
+            volverAlMenu();
+            return true;
+        }
+        return false;
+    }
+
+    private void volverAlMenu() {
         currentPhase = 0;
     }
 
-    private void advanceTimeLogic() {
-        reloj.avanzarUnaHora();
-        System.out.println("\nTiempo avanzado. Hora actual: " + reloj.getTiempoFormateado());
-        currentPhase = 0;
+    // Pide texto hasta que sea válido; devuelve null si el usuario cancela
+    private String pedirTexto(String mensaje) {
+        while (true) {
+            System.out.println(mensaje + " (\"" + CANCELAR + "\" para volver al menú):");
+
+            String userInput = scanner.nextLine().trim();
+
+            if (userInput.equalsIgnoreCase(CANCELAR)) {
+                return null;
+            }
+
+            if (!userInput.isEmpty()) {
+                return userInput;
+            }
+
+            System.out.println("\nEl texto no puede estar vacío.");
+        }
+    }
+
+    // Pide un número entre minimo y maximo; devuelve null si el usuario cancela
+    private Integer pedirEntero(String mensaje, int minimo, int maximo) {
+        while (true) {
+            System.out.println(mensaje + " (\"" + CANCELAR + "\" para volver al menú):");
+
+            String userInput = scanner.nextLine().trim();
+
+            if (userInput.equalsIgnoreCase(CANCELAR)) {
+                return null;
+            }
+
+            int numero;
+            try {
+                numero = Integer.parseInt(userInput);
+            } catch (NumberFormatException e) {
+                System.out.println("\nRespuesta inválida, ingrese un número.");
+                continue;
+            }
+
+            if (numero < minimo || numero > maximo) {
+                System.out.println("\nRespuesta inválida, ingrese un número entre " + minimo + " y " + maximo + ".");
+                continue;
+            }
+
+            return numero;
+        }
     }
 }

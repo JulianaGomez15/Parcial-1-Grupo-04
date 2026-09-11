@@ -19,8 +19,8 @@ public class AventuraExercise extends Exercise {
     private static final int FINAL_PUEBLO = 7;
 
     private final HistoriaAventura historia = new HistoriaAventura();
-    private final SimpleStack<Integer> historial = new SimpleLinkedStack<>(); // para poder volver atras
-    private int escenaActualId = INICIO;
+    // Recorrido del usuario: el tope del stack es la escena en la que esta parado ahora
+    private final SimpleStack<Integer> recorrido = new SimpleLinkedStack<>();
     private boolean firstTime = true;
 
     public AventuraExercise(Scanner scanner) {
@@ -64,6 +64,9 @@ public class AventuraExercise extends Exercise {
 
         historia.agregarEscena(new Escena(FINAL_PUEBLO,
                 "Decidis quedarte a vivir en el pueblo. FIN."));
+
+        // El estado inicial tambien va al stack: es el primer paso del recorrido
+        recorrido.push(INICIO);
     }
 
     @Override
@@ -77,7 +80,8 @@ public class AventuraExercise extends Exercise {
             firstTime = false;
         }
 
-        Escena actual = historia.obtenerEscena(escenaActualId);
+        // El tope del stack es la escena actual, sin sacarla del recorrido
+        Escena actual = historia.obtenerEscena(recorrido.peek());
         System.out.println("\n" + actual.getDescripcion());
 
         int cantidadOpciones = actual.cantidadOpciones();
@@ -86,10 +90,11 @@ public class AventuraExercise extends Exercise {
             System.out.println((i + 1) + ": " + actual.getTextoOpcion(i));
         }
 
-        // Atras solo se ofrece si hay historial, o sea nunca en la primera pantalla
-        boolean hayHistorial = !historial.isEmpty();
+        // Solo se puede volver si debajo del estado actual hay uno anterior,
+        // asi que en el estado inicial (size == 1) Atras no se ofrece
+        boolean puedeVolver = recorrido.size() > 1;
         int opcionAtras = cantidadOpciones + 1;
-        if (hayHistorial) {
+        if (puedeVolver) {
             System.out.println(opcionAtras + ": Atras");
         }
         System.out.println("mm: Volver al menu principal");
@@ -109,8 +114,8 @@ public class AventuraExercise extends Exercise {
             return;
         }
 
-        if (hayHistorial && opcionElegida == opcionAtras) {
-            escenaActualId = historial.pop();
+        if (puedeVolver && opcionElegida == opcionAtras) {
+            recorrido.pop(); // sacamos el estado actual y el anterior queda en el tope
             System.out.println("\nVolves sobre tus pasos...");
             return;
         }
@@ -128,7 +133,6 @@ public class AventuraExercise extends Exercise {
             return;
         }
 
-        historial.push(escenaActualId);
-        escenaActualId = destino;
+        recorrido.push(destino);
     }
 }
