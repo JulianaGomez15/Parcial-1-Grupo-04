@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.Scanner;
 
 import application.Exercise;
-import application.TP03.simuladorTiempo.SimuladorTiempo;
 import application.listModule.SimpleArrayList;
 import application.listModule.SimpleList;
 

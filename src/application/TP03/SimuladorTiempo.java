@@ -1,4 +1,4 @@
-package application.TP03.simuladorTiempo;
+package application.TP03;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
