@@ -13,9 +13,6 @@ public class Tarea {
     protected LocalDateTime fechaLimite;
 
     public Tarea(String tit, LocalDateTime fCreacion, LocalDateTime fCompletada, LocalDateTime fLimite) {
-        if (tit == null || tit.trim().isEmpty()) {
-            throw new IllegalArgumentException("El título no puede estar vacío.");
-        }
         titulo = tit;
         fechaCreacion = fCreacion; /* fecha de ahora */
         fechaCompletada = fCompletada;

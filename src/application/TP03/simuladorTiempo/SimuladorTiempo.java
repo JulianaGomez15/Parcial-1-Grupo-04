@@ -12,9 +12,6 @@ public class SimuladorTiempo {
 	private LocalDateTime tiempoActual;
 
 	public SimuladorTiempo(LocalDateTime tiempoInicial) {
-		if (tiempoInicial == null) {
-			throw new IllegalArgumentException("El tiempo inicial no puede ser null.");
-		}
 		this.tiempoActual = tiempoInicial;
 	}
 

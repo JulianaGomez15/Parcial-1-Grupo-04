@@ -11,9 +11,6 @@ public class Escena {
     private SimpleList<Integer> destinos; // -1 si la opcion no navega (ej: armar fogata)
 
     public Escena(int id, String descripcion) {
-        if (descripcion == null || descripcion.trim().isEmpty()) {
-            throw new IllegalArgumentException("La descripcion de la escena no puede estar vacia.");
-        }
         this.id = id;
         this.descripcion = descripcion;
         this.opciones = new SimpleArrayList<>();
@@ -22,9 +19,6 @@ public class Escena {
 
     // Opcion que lleva a otra escena
     public void agregarOpcion(String texto, int escenaDestino) {
-        if (texto == null || texto.trim().isEmpty()) {
-            throw new IllegalArgumentException("El texto de la opcion no puede estar vacio.");
-        }
         opciones.add(texto);
         destinos.add(escenaDestino);
     }

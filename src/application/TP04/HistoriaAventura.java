@@ -1,7 +1,5 @@
 package application.TP04;
 
-import java.util.NoSuchElementException;
-
 import application.listModule.SimpleArrayList;
 import application.listModule.SimpleList;
 
@@ -14,9 +12,6 @@ public class HistoriaAventura {
     }
 
     public void agregarEscena(Escena escena) {
-        if (escena == null) {
-            throw new IllegalArgumentException("La escena no puede ser null.");
-        }
         escenas.add(escena);
     }
 
@@ -26,7 +21,6 @@ public class HistoriaAventura {
                 return escenas.get(i);
             }
         }
-        // Si no existe una escena con ese id, no hay nada valido para devolver: explota
-        throw new NoSuchElementException("No existe una escena con id " + id + ".");
+        return null;
     }
 }

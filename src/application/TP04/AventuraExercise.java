@@ -85,7 +85,6 @@ public class AventuraExercise extends Exercise {
         System.out.println("\n" + actual.getDescripcion());
 
         int cantidadOpciones = actual.cantidadOpciones();
-        // imprime la lista numerada de opciones de la escena actual para que el usuario elija.
         for (int i = 0; i < cantidadOpciones; i++) {
             System.out.println((i + 1) + ": " + actual.getTextoOpcion(i));
         }
@@ -115,7 +114,7 @@ public class AventuraExercise extends Exercise {
         }
 
         if (puedeVolver && opcionElegida == opcionAtras) {
-            recorrido.pop(); // sacamos el estado actual y el anterior queda en el tope
+            recorrido.pop();
             System.out.println("\nVolves sobre tus pasos...");
             return;
         }
@@ -125,10 +124,9 @@ public class AventuraExercise extends Exercise {
             return;
         }
 
-        int destino = actual.getDestino(opcionElegida - 1); // busca a qué escena lleva la opción que el usuario acaba de elegir
+        int destino = actual.getDestino(opcionElegida - 1);
 
         if (destino == -1) {
-            // Opcion de accion (ej: armar fogata), no cambia de escena
             System.out.println("\nDecidis: " + actual.getTextoOpcion(opcionElegida - 1) + ". Descansas un rato y recuperas energias.");
             return;
         }
