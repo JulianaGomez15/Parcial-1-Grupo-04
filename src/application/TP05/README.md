@@ -4,21 +4,15 @@
 Algoritmos y Estructuras de Datos II
 
 ## Consigna del ejercicio
-Desarrollar una aplicación de consola en Java para gestionar un **sistema de impresión** usando TDA de colas.
+Desarrollar una aplicación de consola en Java de entre las siguientes posibles:
 
-La aplicación debe permitir:
-- crear documentos con nombre, cantidad de páginas y tipo de impresión;
-- enviar documentos a una cola de impresión;
-- cancelar la cola completa;
-- e imprimir los documentos pendientes.
-
-### Bonus
-- Manejar dos colas separadas (por ejemplo, blanco y negro / color) y definir un criterio de prioridad de impresión.
+- **Sistema de impresión:** se imprimen documentos, cada uno con varias páginas y la opción de imprimir a color o en blanco y negro. El usuario puede crear documentos, enviarlos a la cola de impresión, cancelar la cola e imprimir. Cuando se imprime, se deben mostrar en orden las páginas de todos los documentos en la cola, empezando por todos los documentos en blanco y negro y siguiendo con todos los de color.
+- **Sistema de gestión de mesas de restaurante:** en un restaurante, hay una mesa para 2 y 4 personas, y los comensales pueden registrarse para esperar su turno escribiendo su nombre y cantidad de personas. La aplicación permite anotar nuevos clientes, y hacer pasar a nuevos clientes una vez que se libera la mesa correspondiente. Grupos de 1 y 2 personas van a la mesa de 2 personas, 3 y 4 a la de 4, y más de 4 no están permitidos en el establecimiento.
 
 ### Observaciones
-- La aplicación debe manejar inputs inválidos sin crashear.
-- Los TDA pueden lanzar excepciones ante uso inválido, y la aplicación debe validar para evitarlo.
-- Se debe incluir una base de datos pre-programada para facilitar testeo.
+- La aplicación desarrollada debe manejar inputs inválidos del usuario en todas las opciones, evitando crashes. Las implementaciones del TDA en sí deben generar excepciones si reciben comandos o datos inválidos, es la misma aplicación la que debe asegurar que eso no ocurra.
+- Se debe agregar una base de datos pre-programada, a modo de facilitar el testeo de la aplicación (no aplica para la primera opción).
+- Las decisiones sobre experiencia de usuario, interacciones y soluciones a problemas deberán ser explicadas y defendidas en el parcial, por lo cual se recomienda documentarlas.
 
 ---
 

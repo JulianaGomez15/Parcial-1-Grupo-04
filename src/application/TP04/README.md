@@ -4,18 +4,30 @@
 Algoritmos y Estructuras de Datos II
 
 ## Consigna del ejercicio
-Desarrollar una aplicación de consola en Java basada en una **aventura narrativa con decisiones**.
+Desarrollar una aplicación de consola en Java de entre las siguientes posibles:
 
-La historia debe:
-- presentar escenas con descripciones y opciones;
-- permitir avanzar a otras escenas según la opción elegida;
-- contemplar finales distintos;
-- y usar el **TDA Stack (Pila)** para registrar el recorrido y habilitar una opción de volver atrás.
+- **Historial de navegador web:** el usuario tiene opciones para ir hacia una página (escribe por consola el nombre de la página), volver atrás y volver adelante. A cada paso, el programa muestra la página actual y las opciones. Al volver atrás, se deberá cargar la última página visitada, al volver adelante se carga la siguiente, y si se visita una nueva página se elimina sólo el historial hacia adelante.
+- **Menú de configuración para app o dispositivo:** el menú desarrollado deberá tener varios submenús, cada uno de ellos con la posibilidad de volver hacia atrás, elegir otro submenú, o hacer algún ajuste. Los datos configurados por el usuario deben mostrarse en alguna pantalla.
+  - Ejemplo:
+    - Ajustes
+      - Pantalla
+        - Resolución
+        - Brillo
+      - Sonido
+        - Volumen
+        - Mono / Stereo
+- **Aventura narrativa:** contar una historia que, a cada paso, permita al usuario elegir entre varios caminos y volver atrás.
+  - Ejemplo:
+    - “Abrís los ojos y estás en un bosque oscuro. Hay dos caminos: hacia tu izquierda y derecha”
+      - Armar una fogata para acampar
+      - Ir hacia la izquierda
+      - Ir hacia la derecha
+      - Atrás (No disponible en la primera pantalla)
 
 ### Observaciones
-- La aplicación debe manejar inputs inválidos del usuario sin crashear.
-- El TDA puede lanzar excepciones ante uso inválido, y la aplicación debe evitar llegar a esos casos con validaciones.
-- Se recomienda documentar decisiones de UX e interacción para poder defenderlas en el parcial.
+- La aplicación desarrollada debe manejar inputs inválidos del usuario en todas las opciones, evitando crashes. Las implementaciones del TDA en sí deben generar excepciones si reciben comandos o datos inválidos, es la misma aplicación la que debe asegurar que eso no ocurra.
+- Se debe agregar una base de datos pre-programada, a modo de facilitar el testeo de la aplicación (no aplica para la primera opción).
+- Las decisiones sobre experiencia de usuario, interacciones y soluciones a problemas deberán ser explicadas y defendidas en el parcial, por lo cual se recomienda documentarlas.
 
 ---
 
