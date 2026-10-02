@@ -83,17 +83,42 @@ public class RecomendacionMusicalExercise extends Exercise {
 
         System.out.println("\nUsuario logueado: "
                 + (usuarioLogueado == null ? "ninguno" : usuarioLogueado.getNombre()));
-        if (usuarioLogueado != null) {
+        if (usuarioLogueado == null) {
+            mostrarMenuInicio();
+        } else {
             System.out.println("Generos preferidos: " + formatearGenerosFavoritos(usuarioLogueado));
+            mostrarMenuUsuario();
         }
-        System.out.println("1: Agregar genero"
+    }
+
+    private void mostrarMenuInicio() {
+        System.out.println("\n1: Agregar usuario"
+                + "\n2: Iniciar sesion"
+                + "\nmm: Volver al menu principal");
+        String opcion = scanner.nextLine().trim().toLowerCase();
+
+        switch (opcion) {
+            case "1":
+                agregarUsuario();
+                break;
+            case "2":
+                iniciarSesion();
+                break;
+            case "mm":
+                running = false;
+                break;
+            default:
+                System.out.println("\nOpcion invalida.");
+        }
+    }
+
+    private void mostrarMenuUsuario() {
+        System.out.println("\n1: Agregar genero"
                 + "\n2: Agregar cancion"
-                + "\n3: Agregar usuario"
-                + "\n4: Iniciar sesion"
-                + "\n5: Asignar o quitar genero favorito"
-                + "\n6: Recomendar una cancion"
-                + "\n7: Registrar una cancion escuchada"
-                + "\n8: Cerrar sesion"
+                + "\n3: Asignar o quitar genero favorito"
+                + "\n4: Recomendar una cancion"
+                + "\n5: Registrar una cancion escuchada"
+                + "\n6: Cerrar sesion"
                 + "\nmm: Volver al menu principal");
         String opcion = scanner.nextLine().trim().toLowerCase();
 
@@ -105,21 +130,15 @@ public class RecomendacionMusicalExercise extends Exercise {
                 agregarCancion();
                 break;
             case "3":
-                agregarUsuario();
-                break;
-            case "4":
-                iniciarSesion();
-                break;
-            case "5":
                 gestionarGenerosFavoritos();
                 break;
-            case "6":
+            case "4":
                 recomendarCancion();
                 break;
-            case "7":
+            case "5":
                 registrarCancionEscuchada();
                 break;
-            case "8":
+            case "6":
                 cerrarSesion();
                 break;
             case "mm":
@@ -175,14 +194,14 @@ public class RecomendacionMusicalExercise extends Exercise {
 
     private void gestionarGenerosFavoritos() {
         if (!requiereSesion()) return;
+        System.out.println("\n1: Agregar genero favorito\n2: Quitar genero favorito");
+        Integer accion = pedirEntero("Seleccione una opcion", 1, 2);
+        if (accion == null) return;
         mostrarGeneros();
         if (sistema.getGeneros().isEmpty()) {
             System.out.println("\nNo hay generos para asignar.");
             return;
         }
-        System.out.println("1: Agregar genero favorito\n2: Quitar genero favorito");
-        Integer accion = pedirEntero("Seleccione una opcion", 1, 2);
-        if (accion == null) return;
         Integer posicion = pedirEntero("Seleccione el numero del genero", 1, sistema.getGeneros().size());
         if (posicion == null) return;
         Genero genero = obtenerGenero(posicion);

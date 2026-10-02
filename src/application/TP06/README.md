@@ -93,23 +93,30 @@ Con estos datos, Betsabe puede recibir una recomendación de Electronica desde e
 ## Flujo general
 1. `MainProgram` instancia `RecomendacionMusicalExercise` al seleccionar TP06.
 2. El constructor crea el `SistemaRecomendacion` y carga géneros, canciones, usuarios, preferencias e historial de prueba.
-3. El menú muestra el usuario logueado y sus géneros preferidos, si hay una sesión activa.
+3. Sin sesión se muestra el menú de inicio. Con sesión activa se muestran los géneros preferidos y el menú de usuario.
 4. El usuario elige una operación. La interfaz valida los datos ingresados y utiliza el sistema para efectuarla.
 5. Para recomendar, el sistema obtiene las canciones que coinciden con los favoritos y excluye las escuchadas.
 6. La recomendación se muestra sin modificar el historial. Si el usuario escuchó la canción, debe registrarla explícitamente desde la opción correspondiente.
 7. `mm` termina TP06 y devuelve el control al menú principal.
 
 ## Opciones del menú
+
+### Menú de inicio (sin sesión)
+| Opción | Acción |
+|---|---|
+| 1 | Agregar un usuario. |
+| 2 | Iniciar sesión seleccionando un usuario de la lista. |
+| `mm` | Volver al menú principal del proyecto. |
+
+### Menú de usuario (sesión activa)
 | Opción | Acción |
 |---|---|
 | 1 | Agregar un género al catálogo. |
 | 2 | Agregar una canción indicando título, artista y género registrado. |
-| 3 | Agregar un usuario. |
-| 4 | Iniciar sesión seleccionando un usuario de la lista. |
-| 5 | Agregar o quitar un género favorito del usuario logueado. |
-| 6 | Recomendar una canción según preferencias e historial. |
-| 7 | Registrar una canción del catálogo como escuchada por el usuario logueado. |
-| 8 | Cerrar la sesión actual. |
+| 3 | Agregar o quitar un género favorito del usuario logueado. |
+| 4 | Recomendar una canción según preferencias e historial. |
+| 5 | Registrar una canción del catálogo como escuchada por el usuario logueado. |
+| 6 | Cerrar la sesión actual. |
 | `mm` | Volver al menú principal del proyecto. |
 
 ## Rol de cada clase y métodos
@@ -191,7 +198,8 @@ Con estos datos, Betsabe puede recibir una recomendación de Electronica desde e
 **Métodos principales:**
 - `RecomendacionMusicalExercise(Scanner scanner)`: inicializa la consola y carga los datos de prueba.
 - `cargarBaseDeDatos()`: crea los géneros, canciones, usuarios y sus preferencias e historial iniciales.
-- `exerciseLogic()` / `mostrarMenu()`: ejecutan el ciclo del ejercicio, muestran usuario y favoritos, presentan opciones y despachan la acción elegida.
+- `exerciseLogic()` / `mostrarMenu()`: ejecutan el ciclo del ejercicio, muestran el usuario logueado y despachan al menú de inicio o al menú de usuario.
+- `mostrarMenuInicio()` / `mostrarMenuUsuario()`: presentan las opciones según haya o no sesión activa.
 - `agregarGenero()`: solicita y agrega un género.
 - `agregarCancion()`: solicita título y artista, permite elegir un género del catálogo y registra la canción.
 - `agregarUsuario()`: solicita y registra un usuario.
@@ -221,6 +229,7 @@ La interfaz de consola reduce la posibilidad de enviar argumentos inválidos al 
 El modelo también valida invariantes: por ejemplo, no acepta canciones cuyo género no esté registrado, ni operaciones de preferencias o historial para usuarios o canciones ajenos al sistema. La consola evita esas excepciones mediante sus validaciones y seleccionando elementos de los catálogos existentes.
 
 ## Decisiones de UX visibles en TP06
+- Sin sesión solo se ofrecen alta de usuario e inicio de sesión. El resto de operaciones aparece después de iniciar sesión.
 - El menú muestra quién está logueado; debajo se muestran sus géneros preferidos para dar contexto a la recomendación y hacer visibles los cambios de preferencias.
 - Los catálogos se presentan numerados y se seleccionan por posición. Así se evitan problemas de escritura y diferencias de mayúsculas en nombres.
 - La sesión se mantiene hasta que se cierra explícitamente o se sale del ejercicio. La gestión de favoritos, el historial y las recomendaciones requieren una sesión.
