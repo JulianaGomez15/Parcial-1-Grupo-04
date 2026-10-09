@@ -6,6 +6,7 @@ import application.TP03.TareaExercise;
 import application.TP04.AventuraExercise;
 import application.TP05.ImpresionExercise;
 import application.TP06.RecomendacionMusicalExercise;
+import application.TP07.EmailExercise;
 import application.listModule.ListExercise;
 
 public class MainProgram {
@@ -41,7 +42,8 @@ public class MainProgram {
 				+ "\n3: TP04 - AventuraExercise"
 				+ "\n4: TP05 - ImpresionExercise"
 				+ "\n5: TP06 - RecomendacionMusicalExercise"
-				+ "\n6: Salir");
+				+ "\n6: TP07 - EmailExercise"
+				+ "\n7: Salir");
 		
 		// Guardamos lo que escribe el usuario
 		String userInput = scanner.nextLine();
@@ -68,6 +70,9 @@ public class MainProgram {
 				exercise = new RecomendacionMusicalExercise(scanner);
 				break;
 			case "6":
+				exercise = new EmailExercise(scanner);
+				break;
+			case "7":
 				running = false;
 				break;
 			default:
