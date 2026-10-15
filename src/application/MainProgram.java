@@ -7,6 +7,7 @@ import application.TP04.AventuraExercise;
 import application.TP05.ImpresionExercise;
 import application.TP06.RecomendacionMusicalExercise;
 import application.TP07.EmailExercise;
+import application.TP08.LoginExercise;
 import application.listModule.ListExercise;
 
 public class MainProgram {
@@ -35,15 +36,20 @@ public class MainProgram {
 	
 	private void selectExercise(Scanner scanner) 
 	{
-		System.out.println("Selecciona un ejercicio:"
-				+ "\n0: TestExercise"
-				+ "\n1: ListExercise"
-				+ "\n2: TP03 - TareaExercise"
-				+ "\n3: TP04 - AventuraExercise"
-				+ "\n4: TP05 - ImpresionExercise"
-				+ "\n5: TP06 - RecomendacionMusicalExercise"
-				+ "\n6: TP07 - EmailExercise"
-				+ "\n7: Salir");
+		System.out.println("\n+------------------------------------------+"
+				+ "\n|           AYEDD II - GRUPO 04           |"
+				+ "\n+------------------------------------------+"
+				+ "\n| 1: TP01 - Test Exercise                  |"
+				+ "\n| 2: TP02 - List Exercise                  |"
+				+ "\n| 3: TP03 - Tarea Exercise                 |"
+				+ "\n| 4: TP04 - Aventura Exercise              |"
+				+ "\n| 5: TP05 - Impresion Exercise             |"
+				+ "\n| 6: TP06 - Recomendacion Musical Exercise |"
+				+ "\n| 7: TP07 - Email Exercise                 |"
+				+ "\n| 8: TP08 - Login Exercise                 |"
+				+ "\n+------------------------------------------+"
+				+ "\n| 0: Salir                                 |"
+				+ "\n+------------------------------------------+");
 		
 		// Guardamos lo que escribe el usuario
 		String userInput = scanner.nextLine();
@@ -51,28 +57,31 @@ public class MainProgram {
 		// Preguntamos por las distintas opciones
 		switch(userInput)
 		{
-			case "0":
+			case "1":
 				exercise = new TestExercise(scanner);
 				break;
-			case "1":
+			case "2":
 				exercise = new ListExercise(scanner);
 				break;
-			case "2":
+			case "3":
 				exercise = new TareaExercise(scanner);
 				break;
-			case "3":
+			case "4":
 				exercise = new AventuraExercise(scanner);
 				break;
-			case "4":
+			case "5":
 				exercise = new ImpresionExercise(scanner);
 				break;
-			case "5":
+			case "6":
 				exercise = new RecomendacionMusicalExercise(scanner);
 				break;
-			case "6":
+			case "7":
 				exercise = new EmailExercise(scanner);
 				break;
-			case "7":
+			case "8":
+				exercise = new LoginExercise(scanner);
+				break;
+			case "0":
 				running = false;
 				break;
 			default:
