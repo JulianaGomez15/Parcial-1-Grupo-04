@@ -1,6 +1,7 @@
 package application.java.clases;
 
-public class Calculadora {
+public class Calculadora{
+    String nombre;
 
     public void sumarSinRetorno (int a, int b) {
         System.out.println("El resultado de la suma es = " + a + b);
@@ -9,7 +10,7 @@ public class Calculadora {
         System.out.println("El resultado de la resta es " + a + b);
     }
     public void multiplicarSinRetorno(int a, int b) {
-        System.out.println("El resultado de la multiplicacion es " + a * b);
+        System.out.println("El resultado de" + nombre + "en la multiplicacion es " + a * b);
     }
     public void dividirSinRetorno(int a, int b) {
         System.out.println("El resultado de la division es " + a * b);
@@ -26,6 +27,10 @@ public class Calculadora {
     }
     public int dividir (int a, int b) {
         return a / b;
+    }
+
+    public Calculadora(String nombreParametro) {
+        this.nombre = nombreParametro;
     }
 }
 
