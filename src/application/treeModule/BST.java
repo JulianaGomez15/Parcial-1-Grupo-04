@@ -65,4 +65,64 @@ public class BST<E extends Comparable<E>> {
         }
         return current;
     }
+
+     public boolean contains(E value) {
+    return containsRecursive(root, value);
+    }
+
+    private boolean containsRecursive(TreeNode<E> current, E value) {
+        if (current == null) return false;        // llegué al fondo: no está
+
+        int comparison = value.compareTo(current.value);
+
+        if (comparison == 0) return true;         // lo encontré
+        if (comparison < 0)
+            return containsRecursive(current.left, value);   // es menor: izquierda
+        return containsRecursive(current.right, value);      // es mayor: derecha
+    }
+
+    public void inOrder(){
+        inOrderRecursive(root);
+    }
+
+    private void inOrderRecursive( TreeNode<E> current){
+
+        if(current == null) return;
+        inOrderRecursive(current.left);
+        System.out.print(current.value);
+        inOrderRecursive(current.right);
+    }
+
+    public void preOrder(){
+        preOrderRecursive(root);
+    }
+
+    private void preOrderRecursive(TreeNode<E> node){
+
+        if (current == null) return;
+
+        System.out.print(current.value);
+        preOrderRecursive(current.left);
+        preOrderRecursive(current.right);
+    }
+
+    public void postOrder(TreeNode<E> current){
+        postOrderRecursive(root);
+    } 
+
+    private void postOrderRecursive() {
+        
+        if (current == null) return;
+
+        preOrderRecursive(current.left);
+        preOrderRecursive(current.right);
+        System.out.print(current.value);
+
+    }
+
+    public boolean isEmpty(){
+        if(root == null) return true;
+        return false;
+    }
+
 }
