@@ -106,7 +106,7 @@ public class BST<E extends Comparable<E>> {
         preOrderRecursive(current.right);
     }
 
-    public void postOrder(TreeNode<E> current){
+    public void postOrder(){
         postOrderRecursive(root);
     } 
 
