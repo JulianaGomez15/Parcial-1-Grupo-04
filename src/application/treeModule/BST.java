@@ -8,7 +8,7 @@ public class BST<E extends Comparable<E>> {
         root = insertRecursive(root, value);
     }
 
-    private TreeNode<E> insertRecursive(TreeNode<E> current, E value){
+    protected TreeNode<E> insertRecursive(TreeNode<E> current, E value){
         // Caso base: recibimos un espacio vacío
         // Devuelve el nodo que va a ocupar ese lugar
         if(current == null){
@@ -30,7 +30,7 @@ public class BST<E extends Comparable<E>> {
         root = removeRecursive(root, value);
     }
 
-    private TreeNode<E> removeRecursive(TreeNode<E> current, E value){
+    protected TreeNode<E> removeRecursive(TreeNode<E> current, E value){
 
         if(current == null) return null;
         int comparison = value.compareTo(current.value);
@@ -46,6 +46,7 @@ public class BST<E extends Comparable<E>> {
 
             // Caso 3: Tiene 2 hijos
             else{
+                count++;
                 TreeNode<E> successor = getMinChild(current.right);
                 current.value = successor.value;
                 current.right = removeRecursive(current.right, successor.value);
@@ -64,5 +65,17 @@ public class BST<E extends Comparable<E>> {
             current = current.left;
         }
         return current;
+    }
+
+    private int getNodeHeight(TreeNode<E> current){
+        // Caso base: llegamos al fina o el arbol esta vacio
+        if(current == null) return -1;
+
+        // Paso recursivo, contamos 1 + la altura maxima entre los nodos
+        return 1 + Math.max(getNodeHeight(current.left), getNodeHeight(current.right));
+    }
+
+    protected int getNodeBalanceFactor(TreeNode<E> current){
+        return getNodeHeight(current.left) - getNodeHeight(current.right);
     }
 }
