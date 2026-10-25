@@ -11,10 +11,11 @@ public class Usuario {
     private final SimpleSet<Cancion> cancionesEscuchadas = new SimpleArraySet<>();
 
     public Usuario(String nombre) {
-        if (nombre == null || nombre.trim().isEmpty()) {
-            throw new IllegalArgumentException("El nombre del usuario no puede estar vacio.");
-        }
         this.nombre = nombre.trim();
+    }
+
+    public static boolean esNombreValido(String nombre) {
+        return nombre != null && !nombre.trim().isEmpty();
     }
 
     public String getNombre() {
@@ -30,17 +31,17 @@ public class Usuario {
     }
 
     public boolean agregarGeneroFavorito(Genero genero) {
-        if (genero == null) throw new IllegalArgumentException("El genero no puede ser nulo.");
+        if (genero == null) return false;
         return generosFavoritos.add(genero);
     }
 
     public boolean quitarGeneroFavorito(Genero genero) {
-        if (genero == null) throw new IllegalArgumentException("El genero no puede ser nulo.");
+        if (genero == null) return false;
         return generosFavoritos.remove(genero);
     }
 
     public boolean registrarEscuchada(Cancion cancion) {
-        if (cancion == null) throw new IllegalArgumentException("La cancion no puede ser nula.");
+        if (cancion == null) return false;
         return cancionesEscuchadas.add(cancion);
     }
 

@@ -152,6 +152,10 @@ public class RecomendacionMusicalExercise extends Exercise {
     private void agregarGenero() {
         String nombre = pedirTexto("Ingrese el nombre del genero");
         if (nombre == null) return;
+        if (!Genero.esNombreValido(nombre)) {
+            System.out.println("\nEl nombre del genero no puede estar vacio.");
+            return;
+        }
         boolean agregado = sistema.agregarGenero(new Genero(nombre));
         System.out.println(agregado ? "\nGenero agregado." : "\nEse genero ya existe.");
     }
@@ -169,6 +173,10 @@ public class RecomendacionMusicalExercise extends Exercise {
         Integer posicion = pedirEntero("Seleccione el numero del genero", 1, sistema.getGeneros().size());
         if (posicion == null) return;
         Genero genero = obtenerGenero(posicion);
+        if (!Cancion.esValida(titulo, artista, genero)) {
+            System.out.println("\nLa cancion necesita titulo, artista y un genero registrado.");
+            return;
+        }
         boolean agregada = sistema.agregarCancion(new Cancion(titulo, artista, genero));
         System.out.println(agregada ? "\nCancion agregada." : "\nEsa cancion ya existe para ese artista.");
     }
@@ -176,6 +184,10 @@ public class RecomendacionMusicalExercise extends Exercise {
     private void agregarUsuario() {
         String nombre = pedirTexto("Ingrese el nombre del usuario");
         if (nombre == null) return;
+        if (!Usuario.esNombreValido(nombre)) {
+            System.out.println("\nEl nombre del usuario no puede estar vacio.");
+            return;
+        }
         boolean agregado = sistema.agregarUsuario(new Usuario(nombre));
         System.out.println(agregado ? "\nUsuario agregado." : "\nEse usuario ya existe.");
     }

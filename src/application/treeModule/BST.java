@@ -1,5 +1,8 @@
 package application.treeModule;
 
+import application.listModule.SimpleArrayList;
+import application.queueModule.SimpleLinkedQueue;
+
 public class BST<E extends Comparable<E>> {
     private int count = 0;
     private TreeNode<E> root = null;
@@ -41,8 +44,8 @@ public class BST<E extends Comparable<E>> {
             if(current.left == null && current.right == null) return null;
 
             // Caso 2: Tiene solo un hijo
-            else if(current.left != null) return current.left;
-            else if(current.right != null) return current.right;
+            else if(current.right == null) return current.left;
+            else if(current.left == null) return current.right;
 
             // Caso 3: Tiene 2 hijos
             else{
@@ -67,6 +70,79 @@ public class BST<E extends Comparable<E>> {
         return current;
     }
 
+    public boolean contains(E value) {
+        return containsRecursive(root, value);
+    }
+
+    private boolean containsRecursive(TreeNode<E> current, E value) {
+        if (current == null) return false;        // llegué al fondo: no está
+
+        int comparison = value.compareTo(current.value);
+
+        if (comparison == 0) return true;         // lo encontré
+        if (comparison < 0)
+            return containsRecursive(current.left, value);   // es menor: izquierda
+        return containsRecursive(current.right, value);      // es mayor: derecha
+    }
+
+    public void inOrder(){
+        inOrderRecursive(root);
+    }
+
+    private void inOrderRecursive( TreeNode<E> current){
+
+        if(current == null) return;
+        inOrderRecursive(current.left);
+        System.out.print(current.value);
+        inOrderRecursive(current.right);
+    }
+
+    public void preOrder(){
+        preOrderRecursive(root);
+    }
+
+    private void preOrderRecursive(TreeNode<E> current){
+
+        if (current == null) return;
+
+        System.out.print(current.value);
+        preOrderRecursive(current.left);
+        preOrderRecursive(current.right);
+    }
+
+    public void postOrder(){
+        postOrderRecursive(root);
+    }
+
+    private void postOrderRecursive(TreeNode<E> current) {
+        if (current == null) return;
+
+        postOrderRecursive(current.left);
+        postOrderRecursive(current.right);
+        System.out.print(current.value);
+    }
+
+    // BFS: recorre nivel por nivel, de izquierda a derecha.
+    public SimpleArrayList<E> levelOrder(){
+        SimpleArrayList<E> result = new SimpleArrayList<E>(Math.max(count, 1));
+        if(root == null) return result;
+
+        SimpleLinkedQueue<TreeNode<E>> queue = new SimpleLinkedQueue<TreeNode<E>>();
+        queue.enqueue(root);
+        while(queue.size() > 0){
+            TreeNode<E> current = queue.dequeue();
+            result.add(current.value);
+            if(current.left != null) queue.enqueue(current.left);
+            if(current.right != null) queue.enqueue(current.right);
+        }
+        return result;
+    }
+
+    public boolean isEmpty(){
+        if(root == null) return true;
+        return false;
+    }
+
     private int getNodeHeight(TreeNode<E> current){
         // Caso base: llegamos al fina o el arbol esta vacio
         if(current == null) return -1;
@@ -78,4 +154,5 @@ public class BST<E extends Comparable<E>> {
     protected int getNodeBalanceFactor(TreeNode<E> current){
         return getNodeHeight(current.left) - getNodeHeight(current.right);
     }
+
 }

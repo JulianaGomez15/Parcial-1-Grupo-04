@@ -6,10 +6,11 @@ public class Genero {
     private final String nombre;
 
     public Genero(String nombre) {
-        if (nombre == null || nombre.trim().isEmpty()) {
-            throw new IllegalArgumentException("El nombre del genero no puede estar vacio.");
-        }
         this.nombre = nombre.trim();
+    }
+
+    public static boolean esNombreValido(String nombre) {
+        return nombre != null && !nombre.trim().isEmpty();
     }
 
     public String getNombre() {

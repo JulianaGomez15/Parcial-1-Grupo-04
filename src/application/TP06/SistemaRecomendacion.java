@@ -13,25 +13,23 @@ public class SistemaRecomendacion {
     private final Random random = new Random();
 
     public boolean agregarGenero(Genero genero) {
-        if (genero == null) throw new IllegalArgumentException("El genero no puede ser nulo.");
+        if (genero == null || genero.getNombre().isEmpty()) return false;
         return generos.add(genero);
     }
 
     public boolean agregarCancion(Cancion cancion) {
-        if (cancion == null) throw new IllegalArgumentException("La cancion no puede ser nula.");
-        if (!generos.contains(cancion.getGenero())) {
-            throw new IllegalArgumentException("El genero de la cancion no esta registrado.");
-        }
+        if (cancion == null || cancion.getTitulo().isEmpty() || cancion.getArtista().isEmpty()) return false;
+        if (cancion.getGenero() == null || !generos.contains(cancion.getGenero())) return false;
         return canciones.add(cancion);
     }
 
     public boolean agregarUsuario(Usuario usuario) {
-        if (usuario == null) throw new IllegalArgumentException("El usuario no puede ser nulo.");
+        if (usuario == null || usuario.getNombre().isEmpty()) return false;
         return usuarios.add(usuario);
     }
 
     public Genero buscarGenero(String nombre) {
-        if (nombre == null || nombre.trim().isEmpty()) return null;
+        if (!Genero.esNombreValido(nombre)) return null;
         Genero buscado = new Genero(nombre);
         for (Genero genero : generos.toArray(new Genero[0])) {
             if (genero.equals(buscado)) return genero;
@@ -40,7 +38,7 @@ public class SistemaRecomendacion {
     }
 
     public Usuario buscarUsuario(String nombre) {
-        if (nombre == null || nombre.trim().isEmpty()) return null;
+        if (!Usuario.esNombreValido(nombre)) return null;
         Usuario buscado = new Usuario(nombre);
         for (Usuario usuario : usuarios.toArray(new Usuario[0])) {
             if (usuario.equals(buscado)) return usuario;
@@ -55,31 +53,25 @@ public class SistemaRecomendacion {
     }
 
     public boolean registrarGeneroFavorito(Usuario usuario, Genero genero) {
-        validarUsuario(usuario);
-        if (genero == null || !generos.contains(genero)) {
-            throw new IllegalArgumentException("El genero no esta registrado.");
-        }
+        if (!pertenece(usuario)) return false;
+        if (genero == null || !generos.contains(genero)) return false;
         return usuario.agregarGeneroFavorito(genero);
     }
 
     public boolean quitarGeneroFavorito(Usuario usuario, Genero genero) {
-        validarUsuario(usuario);
-        if (genero == null || !generos.contains(genero)) {
-            throw new IllegalArgumentException("El genero no esta registrado.");
-        }
+        if (!pertenece(usuario)) return false;
+        if (genero == null || !generos.contains(genero)) return false;
         return usuario.quitarGeneroFavorito(genero);
     }
 
     public boolean registrarEscuchada(Usuario usuario, Cancion cancion) {
-        validarUsuario(usuario);
-        if (cancion == null || !canciones.contains(cancion)) {
-            throw new IllegalArgumentException("La cancion no esta registrada.");
-        }
+        if (!pertenece(usuario)) return false;
+        if (cancion == null || !canciones.contains(cancion)) return false;
         return usuario.registrarEscuchada(cancion);
     }
 
     public Optional<Cancion> recomendar(Usuario usuario) {
-        validarUsuario(usuario);
+        if (!pertenece(usuario)) return Optional.empty();
         SimpleSet<Cancion> candidatas = new SimpleArraySet<>();
         for (Cancion cancion : canciones.toArray(new Cancion[0])) {
             if (usuario.getGenerosFavoritos().contains(cancion.getGenero())
@@ -104,9 +96,7 @@ public class SistemaRecomendacion {
         return usuarios;
     }
 
-    private void validarUsuario(Usuario usuario) {
-        if (usuario == null || !usuarios.contains(usuario)) {
-            throw new IllegalArgumentException("El usuario no pertenece al sistema.");
-        }
+    private boolean pertenece(Usuario usuario) {
+        return usuario != null && usuarios.contains(usuario);
     }
 }

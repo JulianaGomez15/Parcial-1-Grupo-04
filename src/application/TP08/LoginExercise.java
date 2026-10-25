@@ -81,10 +81,11 @@ public class LoginExercise extends Exercise {
             return;
         }
 
-        // nombreUsuario y contrasenia ya fueron validados arriba, asi que
-        // sistema.registrar nunca recibe datos invalidos en uso normal.
-        sistema.registrar(nombreUsuario, contrasenia);
-        System.out.println("\nCuenta creada con exito.");
+        if (sistema.registrar(nombreUsuario, contrasenia)) {
+            System.out.println("\nCuenta creada con exito.");
+        } else {
+            System.out.println("\nNo se pudo crear la cuenta.");
+        }
     }
 
     private void ingresarLogic() {
@@ -107,8 +108,6 @@ public class LoginExercise extends Exercise {
             System.out.println("\nIngrese su contraseña:");
             String contrasenia = scanner.nextLine();
 
-            // Ya chequeamos que no este bloqueado antes de entrar al while, asi que
-            // validarContrasenia nunca explota en uso normal.
             correcta = usuario.validarContrasenia(contrasenia);
 
             if (correcta) {

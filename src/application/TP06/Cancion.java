@@ -8,18 +8,15 @@ public class Cancion {
     private final Genero genero;
 
     public Cancion(String titulo, String artista, Genero genero) {
-        if (titulo == null || titulo.trim().isEmpty()) {
-            throw new IllegalArgumentException("El titulo no puede estar vacio.");
-        }
-        if (artista == null || artista.trim().isEmpty()) {
-            throw new IllegalArgumentException("El artista no puede estar vacio.");
-        }
-        if (genero == null) {
-            throw new IllegalArgumentException("El genero no puede ser nulo.");
-        }
         this.titulo = titulo.trim();
         this.artista = artista.trim();
         this.genero = genero;
+    }
+
+    public static boolean esValida(String titulo, String artista, Genero genero) {
+        return titulo != null && !titulo.trim().isEmpty()
+                && artista != null && !artista.trim().isEmpty()
+                && genero != null;
     }
 
     public String getTitulo() {

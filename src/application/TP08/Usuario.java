@@ -10,14 +10,13 @@ public class Usuario {
     private boolean bloqueado = false;
 
     public Usuario(String nombreUsuario, String contrasenia) {
-        if (nombreUsuario == null || nombreUsuario.trim().isEmpty()) {
-            throw new IllegalArgumentException("El nombre de usuario no puede estar vacio.");
-        }
-        if (contrasenia == null || contrasenia.isEmpty()) {
-            throw new IllegalArgumentException("La contraseña no puede estar vacia.");
-        }
         this.nombreUsuario = nombreUsuario.trim();
         this.contrasenia = contrasenia;
+    }
+
+    public static boolean esValido(String nombreUsuario, String contrasenia) {
+        return nombreUsuario != null && !nombreUsuario.trim().isEmpty()
+                && contrasenia != null && !contrasenia.isEmpty();
     }
 
     public String getNombreUsuario() {
@@ -31,9 +30,7 @@ public class Usuario {
     // Devuelve true si la contrasenia es correcta. Si no lo es, cuenta el intento
     // fallido y bloquea la cuenta al llegar a MAX_INTENTOS.
     public boolean validarContrasenia(String intento) {
-        if (bloqueado) {
-            throw new IllegalStateException("La cuenta esta bloqueada.");
-        }
+        if (bloqueado) return false;
 
         if (contrasenia.equals(intento)) {
             intentosFallidos = 0;

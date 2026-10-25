@@ -9,8 +9,8 @@ Desarrollar una aplicación de consola en Java que utilice el TDA PriorityQueue.
 Los mails los genera el mismo usuario de la app, que simula ser quien los escribe para probar la correcta asignación de categoría y orden. El usuario completa los 3 datos.
 
 ### Observaciones
-- La aplicación debe manejar inputs inválidos del usuario (prioridades o categorías inválidas) evitando crashes y excepciones.
-- Las implementaciones del TDA deben generar excepciones si reciben comandos o datos inválidos; es la aplicación la que debe asegurar que eso no ocurra.
+- La aplicación debe manejar inputs inválidos del usuario (prioridades o categorías inválidas) con `if`, avisando y volviendo a pedir el dato. No se usa `throw` para esos casos.
+- Antes de sacar un mail se pregunta si la pestaña está vacía. Así no se llama a `dequeue` sobre una cola vacía.
 - Las decisiones de experiencia de usuario se documentan para poder explicarlas en el parcial.
 
 ## Qué implementa este proyecto en TP07
@@ -87,7 +87,7 @@ En Principal y Notificaciones el de prioridad Baja se cargó primero a propósit
 
 ### `Mail`
 **Rol:** entidad de dominio.
-- `Mail(String asunto, Pestania pestania, Prioridad prioridad)`: valida los datos y lanza `IllegalArgumentException` si el asunto está vacío o si la pestaña o la prioridad son nulas. Normaliza el asunto con `trim`.
+- `Mail(String asunto, Pestania pestania, Prioridad prioridad)`: guarda los datos ya validados por la consola y recorta el asunto. `esValido` indica si el asunto, la pestaña y la prioridad sirven antes de construirlo.
 - `getAsunto()`, `getPestania()`, `getPrioridad()`: devuelven los datos.
 - `toString()`: `[Prioridad] Asunto`.
 
@@ -98,7 +98,7 @@ En Principal y Notificaciones el de prioridad Baja se cargó primero a propósit
 
 **Métodos:**
 - `recibir(Mail mail)`: encola el mail en la cola de su pestaña según su prioridad.
-- `abrirSiguiente(Pestania pestania)`: saca y devuelve el mail más prioritario de la pestaña. Si está vacía, el TDA lanza `NoSuchElementException`.
+- `abrirSiguiente(Pestania pestania)`: si la pestaña está vacía o no existe, devuelve `null` y no llama a `dequeue`. Si hay mails, saca y devuelve el más prioritario.
 - `isEmpty(Pestania pestania)` / `cantidad(Pestania pestania)`: estado de la pestaña.
 - `snapshot(Pestania pestania)`: devuelve una lista con los mails en orden de lectura, sin modificar la cola.
 - `colaDe(Pestania pestania)`: devuelve la cola que corresponde a la pestaña.
@@ -127,10 +127,10 @@ En Principal y Notificaciones el de prioridad Baja se cargó primero a propósit
 - **Pestañas y prioridades inválidas:** se vuelven a pedir con un mensaje que indica las opciones válidas. Como son `enum`, es imposible crear un mail con una categoría inexistente.
 - **Asunto vacío:** no se acepta.
 - **`cancelar`:** en cualquier dato abandona la operación sin crear nada.
-- **Pestaña vacía:** antes de llamar a `dequeue` se verifica `isEmpty`. Así el TDA nunca recibe una operación inválida y no lanza su excepción.
+- **Pestaña vacía:** antes de abrir un mail se verifica `isEmpty`. Si no hay mails, se avisa y no se llama a `dequeue`.
 - **Opciones del menú inválidas:** se informa y se vuelve a mostrar el menú.
 
-El modelo (`Mail`, `BandejaEntrada`) y el TDA lanzan excepciones ante datos inválidos; la consola valida antes de llamarlos para que nunca ocurran.
+La consola valida el asunto, la pestaña y la prioridad antes de crear el mail. `BandejaEntrada` devuelve `false` o `null` si la operación no se puede hacer, y no usa `throw` para un mail nulo o una pestaña vacía.
 
 ## Decisiones de UX visibles en TP07
 - **Resumen siempre visible:** el menú muestra cuántos mails sin leer hay en cada pestaña, como el contador de una bandeja real.

@@ -9,14 +9,11 @@ public class SistemaLogin {
 
     private final SimpleDictionary<String, Usuario> usuarios = new SimpleLinkedDictionary<>();
 
-    public void registrar(String nombreUsuario, String contrasenia) {
-        if (!esMailValido(nombreUsuario)) {
-            throw new IllegalArgumentException("El mail debe terminar en " + DOMINIO_PERMITIDO + ".");
-        }
-        if (usuarios.containsKey(nombreUsuario)) {
-            throw new IllegalArgumentException("Ya existe un usuario con ese nombre.");
-        }
+    public boolean registrar(String nombreUsuario, String contrasenia) {
+        if (!esMailValido(nombreUsuario) || !Usuario.esValido(nombreUsuario, contrasenia)) return false;
+        if (usuarios.containsKey(nombreUsuario)) return false;
         usuarios.put(nombreUsuario, new Usuario(nombreUsuario, contrasenia));
+        return true;
     }
 
     // Solo se permiten mails @uade.edu.ar, con algo antes de la arroba
@@ -28,6 +25,7 @@ public class SistemaLogin {
 
     // Devuelve null si no existe un usuario con ese nombre
     public Usuario buscar(String nombreUsuario) {
+        if (nombreUsuario == null || nombreUsuario.isEmpty()) return null;
         return usuarios.get(nombreUsuario);
     }
 }

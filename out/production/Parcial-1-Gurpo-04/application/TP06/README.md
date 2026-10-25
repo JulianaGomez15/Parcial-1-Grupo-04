@@ -14,7 +14,7 @@ La aplicación permite:
 - registrar canciones como escuchadas para excluirlas de recomendaciones futuras.
 
 ### Observaciones
-- La aplicación debe manejar entradas inválidas sin caerse. El modelo y las implementaciones de los TDA rechazan datos inválidos mediante excepciones; la interfaz valida las entradas antes de llamar al modelo.
+- La aplicación debe manejar entradas inválidas sin caerse. La consola las detecta con `if`, informa el problema y no ejecuta la operación. No se usa `throw` para un dato vacío, un duplicado o un elemento que no está. El único `try/catch` es el de `NumberFormatException` al leer un número.
 - Se incluye una base de datos precargada para facilitar la prueba.
 - Las decisiones de interacción y experiencia de usuario se documentan para poder explicarlas durante el parcial.
 
@@ -128,7 +128,7 @@ Con estos datos, Betsabe puede recibir una recomendación de Electronica desde e
 - `nombre`: se almacena sin espacios al inicio o al final.
 
 **Métodos:**
-- `Genero(String nombre)`: crea el género; rechaza valores nulos o vacíos con `IllegalArgumentException`.
+- `Genero(String nombre)`: crea el género con el nombre ya validado y recortado. `esNombreValido` indica si el texto sirve antes de construirlo.
 - `getNombre()`: devuelve el nombre.
 - `equals(Object other)` / `hashCode()`: implementan identidad sin distinguir mayúsculas y minúsculas.
 - `toString()`: devuelve el nombre para mostrarlo en consola.
@@ -175,7 +175,7 @@ Con estos datos, Betsabe puede recibir una recomendación de Electronica desde e
 
 **Métodos:**
 - `agregarGenero(Genero genero)`: incorpora el género y devuelve `false` si ya existía.
-- `agregarCancion(Cancion cancion)`: incorpora la canción si su género está registrado; rechaza con `IllegalArgumentException` canciones inválidas o géneros inexistentes.
+- `agregarCancion(Cancion cancion)`: devuelve `false` si la canción es nula, le falta título o artista, o su género no está registrado. Si no, la incorpora.
 - `agregarUsuario(Usuario usuario)`: incorpora el usuario y evita duplicados según su identidad.
 - `buscarGenero(String nombre)` / `buscarUsuario(String nombre)`: buscan por nombre sin distinguir mayúsculas; devuelven `null` si no encuentran coincidencia o el texto no es válido.
 - `buscarCancion(int posicion)`: devuelve la canción en la posición numerada, o `null` si la posición queda fuera de rango.
@@ -226,7 +226,7 @@ La interfaz de consola reduce la posibilidad de enviar argumentos inválidos al 
 - las operaciones que dependen de un usuario activo informan si no hay sesión iniciada;
 - la opción de recomendar distingue el caso de no tener favoritos del caso en que no quedan canciones candidatas.
 
-El modelo también valida invariantes: por ejemplo, no acepta canciones cuyo género no esté registrado, ni operaciones de preferencias o historial para usuarios o canciones ajenos al sistema. La consola evita esas excepciones mediante sus validaciones y seleccionando elementos de los catálogos existentes.
+El modelo también valida invariantes y, si no se cumplen, devuelve `false` o un resultado vacío sin lanzar una excepción. Por ejemplo, no acepta canciones cuyo género no esté registrado, ni operaciones de preferencias o historial para usuarios o canciones ajenos al sistema. La consola evita esos casos validando la entrada y seleccionando elementos de los catálogos existentes.
 
 ## Decisiones de UX visibles en TP06
 - Sin sesión solo se ofrecen alta de usuario e inicio de sesión. El resto de operaciones aparece después de iniciar sesión.

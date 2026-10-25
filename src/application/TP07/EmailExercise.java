@@ -98,8 +98,18 @@ public class EmailExercise extends Exercise {
             return;
         }
 
+        if (!Mail.esValido(asunto, pestania, prioridad)) {
+            System.out.println("\nEl mail necesita asunto, pestaña y prioridad.");
+            volverAlMenu();
+            return;
+        }
+
         Mail mail = new Mail(asunto, pestania, prioridad);
-        bandeja.recibir(mail);
+        if (!bandeja.recibir(mail)) {
+            System.out.println("\nNo se pudo guardar el mail.");
+            volverAlMenu();
+            return;
+        }
 
         int posicion = posicionEnPestania(mail);
         System.out.println("\nMail recibido en " + pestania + " con prioridad " + prioridad
@@ -125,7 +135,6 @@ public class EmailExercise extends Exercise {
             return;
         }
 
-        // Validamos antes de llamar al TDA para que no lance la excepcion
         if (bandeja.isEmpty(pestania)) {
             System.out.println("\nNo hay mails en " + pestania + ".");
             volverAlMenu();
@@ -133,6 +142,11 @@ public class EmailExercise extends Exercise {
         }
 
         Mail mail = bandeja.abrirSiguiente(pestania);
+        if (mail == null) {
+            System.out.println("\nNo hay mails en " + pestania + ".");
+            volverAlMenu();
+            return;
+        }
         System.out.println("\n--- Mail abierto ---"
                 + "\nAsunto: " + mail.getAsunto()
                 + "\nPestaña: " + mail.getPestania()

@@ -14,26 +14,32 @@ public class BandejaEntrada {
     private final SimplePriorityQueue<Mail> notificaciones = new SimpleArrayPriorityQueue<>();
     private final SimplePriorityQueue<Mail> spam = new SimpleArrayPriorityQueue<>();
 
-    // Recibe un mail y lo guarda en la pestaña que indica el propio mail
-    public void recibir(Mail mail) {
-        if (mail == null) {
-            throw new IllegalArgumentException("El mail no puede ser nulo.");
-        }
-        colaDe(mail.getPestania()).enqueue(mail, mail.getPrioridad().getValor());
+    // Recibe un mail y lo guarda en la pestaña que indica el propio mail.
+    // Devuelve false si el mail no se puede guardar.
+    public boolean recibir(Mail mail) {
+        if (mail == null || mail.getPestania() == null || mail.getPrioridad() == null) return false;
+        SimplePriorityQueue<Mail> cola = colaDe(mail.getPestania());
+        if (cola == null) return false;
+        cola.enqueue(mail, mail.getPrioridad().getValor());
+        return true;
     }
 
     // Abre (y saca de la bandeja) el mail mas prioritario de la pestaña.
-    // Si la pestaña esta vacia, dequeue del TDA lanza NoSuchElementException.
+    // Si la pestaña esta vacia o no existe, no llama a dequeue y devuelve null.
     public Mail abrirSiguiente(Pestania pestania) {
+        if (isEmpty(pestania)) return null;
         return colaDe(pestania).dequeue();
     }
 
     public boolean isEmpty(Pestania pestania) {
-        return colaDe(pestania).isEmpty();
+        SimplePriorityQueue<Mail> cola = colaDe(pestania);
+        return cola == null || cola.isEmpty();
     }
 
     public int cantidad(Pestania pestania) {
-        return colaDe(pestania).size();
+        SimplePriorityQueue<Mail> cola = colaDe(pestania);
+        if (cola == null) return 0;
+        return cola.size();
     }
 
     // Devuelve los mails de la pestaña en el orden en que se van a leer,
@@ -41,6 +47,7 @@ public class BandejaEntrada {
     public SimpleList<Mail> snapshot(Pestania pestania) {
         SimplePriorityQueue<Mail> cola = colaDe(pestania);
         SimpleList<Mail> mails = new SimpleArrayList<>();
+        if (cola == null) return mails;
 
         // Vaciamos la cola guardando cada mail en orden
         while (!cola.isEmpty()) {
@@ -59,9 +66,7 @@ public class BandejaEntrada {
     }
 
     private SimplePriorityQueue<Mail> colaDe(Pestania pestania) {
-        if (pestania == null) {
-            throw new IllegalArgumentException("La pestania no puede ser nula.");
-        }
+        if (pestania == null) return null;
 
         switch (pestania) {
             case PRINCIPAL:
@@ -71,7 +76,7 @@ public class BandejaEntrada {
             case SPAM:
                 return spam;
             default:
-                throw new IllegalArgumentException("Pestania desconocida: " + pestania);
+                return null;
         }
     }
 }

@@ -8,6 +8,7 @@ import application.TP05.ImpresionExercise;
 import application.TP06.RecomendacionMusicalExercise;
 import application.TP07.EmailExercise;
 import application.TP08.LoginExercise;
+import application.TP09.ContactosExercise;
 import application.listModule.ListExercise;
 
 public class MainProgram {
@@ -47,6 +48,7 @@ public class MainProgram {
 				+ "\n| 6: TP06 - Recomendacion Musical Exercise |"
 				+ "\n| 7: TP07 - Email Exercise                 |"
 				+ "\n| 8: TP08 - Login Exercise                 |"
+				+ "\n| 9: TP09 - Contactos Exercise             |"
 				+ "\n+------------------------------------------+"
 				+ "\n| 0: Salir                                 |"
 				+ "\n+------------------------------------------+");
@@ -80,6 +82,9 @@ public class MainProgram {
 				break;
 			case "8":
 				exercise = new LoginExercise(scanner);
+				break;
+			case "9":
+				exercise = new ContactosExercise(scanner);
 				break;
 			case "0":
 				running = false;
