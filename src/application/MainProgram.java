@@ -9,7 +9,9 @@ import application.TP06.RecomendacionMusicalExercise;
 import application.TP07.EmailExercise;
 import application.TP08.LoginExercise;
 import application.TP09.ContactosExercise;
+import application.TP10.ContactosAVLExercise;
 import application.listModule.ListExercise;
+import application.recursion.RecursionExercise;
 
 public class MainProgram {
 	private boolean running = true;
@@ -38,17 +40,19 @@ public class MainProgram {
 	private void selectExercise(Scanner scanner) 
 	{
 		System.out.println("\n+------------------------------------------+"
-				+ "\n|           AYEDD II - GRUPO 04           |"
+				+ "\n|           AYEDD II - GRUPO 04            |"
 				+ "\n+------------------------------------------+"
-				+ "\n| 1: TP01 - Test Exercise                  |"
-				+ "\n| 2: TP02 - List Exercise                  |"
-				+ "\n| 3: TP03 - Tarea Exercise                 |"
-				+ "\n| 4: TP04 - Aventura Exercise              |"
-				+ "\n| 5: TP05 - Impresion Exercise             |"
-				+ "\n| 6: TP06 - Recomendacion Musical Exercise |"
-				+ "\n| 7: TP07 - Email Exercise                 |"
-				+ "\n| 8: TP08 - Login Exercise                 |"
-				+ "\n| 9: TP09 - Contactos Exercise             |"
+				+ "\n|  1: TP01 - Test Exercise                 |"
+				+ "\n|  2: TP02 - List Exercise                 |"
+				+ "\n|  3: TP03 - Tarea Exercise                |"
+				+ "\n|  4: TP04 - Aventura Exercise             |"
+				+ "\n|  5: TP05 - Impresion Exercise            |"
+				+ "\n|  6: TP06 - Recomendacion Musical Exercise|"
+				+ "\n|  7: TP07 - Email Exercise                |"
+				+ "\n|  8: TP08 - Login Exercise                |"
+				+ "\n|  9: TP09 - Contactos Exercise            |"
+				+ "\n| 10: TP10 - Contactos AVL Exercise        |"
+				+ "\n| 11: TP11 - Recursion Exercise            |"
 				+ "\n+------------------------------------------+"
 				+ "\n| 0: Salir                                 |"
 				+ "\n+------------------------------------------+");
@@ -85,6 +89,12 @@ public class MainProgram {
 				break;
 			case "9":
 				exercise = new ContactosExercise(scanner);
+				break;
+			case "10":
+				exercise = new ContactosAVLExercise(scanner);
+				break;
+			case "11":
+				exercise = new RecursionExercise(scanner);
 				break;
 			case "0":
 				running = false;
