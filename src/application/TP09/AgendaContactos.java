@@ -1,6 +1,5 @@
 package application.TP09;
 
-import application.listModule.SimpleArrayList;
 import application.listModule.SimpleList;
 import application.treeModule.BST;
 
@@ -15,9 +14,6 @@ public class AgendaContactos {
     };
 
     private final BST<Contacto> contactos = new BST<>();
-    // Los mismos objetos del arbol, en orden alfabetico.
-    // inOrder solo imprime, y el BST no devuelve el nodo ni el tamaño.
-    private final SimpleList<Contacto> listado = new SimpleArrayList<>();
 
     public boolean agregar(String nombre, String telefono, String mail) {
         if (!Contacto.esNombreValido(nombre)) return false;
@@ -27,7 +23,6 @@ public class AgendaContactos {
 
         Contacto contacto = new Contacto(nombre, telefono, mail);
         contactos.insert(contacto);
-        insertarOrdenado(contacto);
         return true;
     }
 
@@ -37,8 +32,9 @@ public class AgendaContactos {
     }
 
     public Contacto buscar(String nombre) {
-        if (!existe(nombre)) return null;
-        return obtener(Contacto.paraBuscar(nombre));
+        if (!Contacto.esNombreValido(nombre)) return null;
+
+        return contactos.search(Contacto.paraBuscar(nombre));
     }
 
     public boolean editarNombre(Contacto contacto, String nuevoNombre) {
@@ -56,8 +52,6 @@ public class AgendaContactos {
         contactos.remove(contacto);
         contacto.setNombre(normalizado);
         contactos.insert(contacto);
-        listado.remove(contacto);
-        insertarOrdenado(contacto);
         return true;
     }
 
@@ -76,7 +70,6 @@ public class AgendaContactos {
     public boolean borrar(Contacto contacto) {
         if (!estaEnAgenda(contacto)) return false;
         contactos.remove(contacto);
-        listado.remove(contacto);
         return true;
     }
 
@@ -94,15 +87,11 @@ public class AgendaContactos {
     }
 
     public SimpleList<Contacto> listar() {
-        SimpleList<Contacto> copia = new SimpleArrayList<>();
-        for (int i = 0; i < listado.size(); i++) {
-            copia.add(listado.get(i));
-        }
-        return copia;
+        return contactos.inOrder();
     }
 
     public int size() {
-        return listado.size();
+        return contactos.size();
     }
 
     public boolean isEmpty() {
@@ -113,19 +102,4 @@ public class AgendaContactos {
         return contacto != null && contactos.contains(contacto);
     }
 
-    private void insertarOrdenado(Contacto contacto) {
-        int indice = 0;
-        while (indice < listado.size() && listado.get(indice).compareTo(contacto) < 0) {
-            indice++;
-        }
-        listado.add(indice, contacto);
-    }
-
-    private Contacto obtener(Contacto clave) {
-        for (int i = 0; i < listado.size(); i++) {
-            Contacto actual = listado.get(i);
-            if (actual.compareTo(clave) == 0) return actual;
-        }
-        return null;
-    }
 }

@@ -85,16 +85,24 @@ public class BST<E extends Comparable<E>> {
         return containsRecursive(current.right, value);      // es mayor: derecha
     }
 
-    public void inOrder(){
-        inOrderRecursive(root);
+    public SimpleArrayList<E> inOrder() {
+        SimpleArrayList<E> lista = new SimpleArrayList<>();
+
+        inOrderRecursive(root, lista);
+
+        return lista;
     }
 
-    private void inOrderRecursive( TreeNode<E> current){
+    private void inOrderRecursive(TreeNode<E> current,
+                                  SimpleArrayList<E> lista) {
 
-        if(current == null) return;
-        inOrderRecursive(current.left);
-        System.out.print(current.value);
-        inOrderRecursive(current.right);
+        if (current == null) return;
+
+        inOrderRecursive(current.left, lista);
+
+        lista.add(current.value);
+
+        inOrderRecursive(current.right, lista);
     }
 
     public void preOrder(){
@@ -153,6 +161,33 @@ public class BST<E extends Comparable<E>> {
 
     protected int getNodeBalanceFactor(TreeNode<E> current){
         return getNodeHeight(current.left) - getNodeHeight(current.right);
+    }
+
+    public E search(E value) {
+        return searchRecursive(root, value);
+    }
+
+    private E searchRecursive(TreeNode<E> current, E value) {
+
+        // Caso base: no se encontró el elemento
+        if (current == null) return null;
+
+        int comparison = value.compareTo(current.value);
+
+        // Encontramos el elemento
+        if (comparison == 0)
+            return current.value;
+
+        // Buscamos por la izquierda
+        if (comparison < 0)
+            return searchRecursive(current.left, value);
+
+        // Buscamos por la derecha
+        return searchRecursive(current.right, value);
+    }
+
+    public int size(){
+        return count;
     }
 
 }
