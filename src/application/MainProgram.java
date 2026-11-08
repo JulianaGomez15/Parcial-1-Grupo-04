@@ -10,6 +10,7 @@ import application.TP07.EmailExercise;
 import application.TP08.LoginExercise;
 import application.TP09.ContactosExercise;
 import application.TP10.ContactosAVLExercise;
+import application.TP11.GPSExercise;
 import application.listModule.ListExercise;
 import application.recursion.RecursionExercise;
 
@@ -39,26 +40,27 @@ public class MainProgram {
 	
 	private void selectExercise(Scanner scanner) 
 	{
-		System.out.println("\n+------------------------------------------+"
-				+ "\n|           AYEDD II - GRUPO 04            |"
-				+ "\n+------------------------------------------+"
-				+ "\n|  1: TP01 - Test Exercise                 |"
-				+ "\n|  2: TP02 - List Exercise                 |"
-				+ "\n|  3: TP03 - Tarea Exercise                |"
-				+ "\n|  4: TP04 - Aventura Exercise             |"
-				+ "\n|  5: TP05 - Impresion Exercise            |"
-				+ "\n|  6: TP06 - Recomendacion Musical Exercise|"
-				+ "\n|  7: TP07 - Email Exercise                |"
-				+ "\n|  8: TP08 - Login Exercise                |"
-				+ "\n|  9: TP09 - Contactos Exercise            |"
-				+ "\n| 10: TP10 - Contactos AVL Exercise        |"
-				+ "\n| 11: TP11 - Recursion Exercise            |"
-				+ "\n+------------------------------------------+"
-				+ "\n| 0: Salir                                 |"
-				+ "\n+------------------------------------------+");
+		System.out.println("\n+-------------------------------------------+"
+				+ "\n|            AYEDD II - GRUPO 04            |"
+				+ "\n+-------------------------------------------+"
+				+ "\n|  1: TP01 - Test Exercise                  |"
+				+ "\n|  2: TP02 - List Exercise                  |"
+				+ "\n|  3: TP03 - Tarea Exercise                 |"
+				+ "\n|  4: TP04 - Aventura Exercise              |"
+				+ "\n|  5: TP05 - Impresion Exercise             |"
+				+ "\n|  6: TP06 - Recomendacion Musical Exercise |"
+				+ "\n|  7: TP07 - Email Exercise                 |"
+				+ "\n|  8: TP08 - Login Exercise                 |"
+				+ "\n|  9: TP09 - Contactos Exercise             |"
+				+ "\n| 10: TP10 - Contactos AVL Exercise         |"
+				+ "\n| 11: TP11 - GPS Exercise                   |"
+				+ "\n+-------------------------------------------+"
+				+ "\n|  R: Recursion Exercise                    |"
+				+ "\n|  0: Salir                                 |"
+				+ "\n+-------------------------------------------+");
 		
-		// Guardamos lo que escribe el usuario
-		String userInput = scanner.nextLine();
+		// Guardamos lo que escribe el usuario (sin importar mayus/minus ni espacios de mas)
+		String userInput = scanner.nextLine().trim().toLowerCase();
 		
 		// Preguntamos por las distintas opciones
 		switch(userInput)
@@ -94,6 +96,9 @@ public class MainProgram {
 				exercise = new ContactosAVLExercise(scanner);
 				break;
 			case "11":
+				exercise = new GPSExercise(scanner);
+				break;
+			case "r":
 				exercise = new RecursionExercise(scanner);
 				break;
 			case "0":
@@ -106,3 +111,4 @@ public class MainProgram {
 	}
 
 }
+
