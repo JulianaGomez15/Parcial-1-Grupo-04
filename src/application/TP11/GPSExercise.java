@@ -10,8 +10,8 @@ import application.graphModule.Graph;
 import application.graphModule.ListGraph;
 import application.listModule.SimpleArrayList;
 import application.listModule.SimpleList;
-import application.stackModule.SimpleLinkedStack;
-import application.stackModule.SimpleStack;
+import application.setModule.SimpleArraySet;
+import application.setModule.SimpleSet;
 
 public class GPSExercise extends Exercise {
 
@@ -76,9 +76,8 @@ public class GPSExercise extends Exercise {
     }
 
     private void calcularLogic() {
-        // DijkstraSolver.dijkstraAllNodes devuelve, para cada vertice, un Edge
-        // donde "destination" es el nodo anterior en el camino mas corto desde
-        // ORIGEN, y "weight" es el costo total acumulado hasta ese vertice.
+        // DijkstraSolver nos da la distancia real mas corta, para saber cual
+        // de todos los caminos que encontremos es el ganador.
         SimpleDictionary<String, Edge<String>> tabla = dijkstra.dijkstraAllNodes(ORIGEN, grafo);
 
         if (tabla.get(DESTINO).weight == Integer.MAX_VALUE) {
@@ -86,34 +85,65 @@ public class GPSExercise extends Exercise {
             return;
         }
 
-        SimpleList<String> camino = reconstruirCamino(tabla, DESTINO);
+        int costoMasCorto = tabla.get(DESTINO).weight;
 
-        System.out.print("\nCamino mas corto: ");
+        // Buscamos TODOS los caminos simples (sin repetir sedes) entre origen y
+        // destino, para poder mostrar las alternativas y comparar sus costos,
+        // en vez de solo mostrar el resultado final.
+        SimpleList<SimpleList<String>> caminos = new SimpleArrayList<>();
+        SimpleList<Integer> costos = new SimpleArrayList<>();
+        buscarCaminos(ORIGEN, 0, new SimpleArraySet<>(), new SimpleArrayList<>(), caminos, costos);
+
+        System.out.println("\nCaminos posibles de " + ORIGEN + " a " + DESTINO + ":");
+        for (int i = 0; i < caminos.size(); i++) {
+            imprimirCamino(i + 1, caminos.get(i), costos.get(i), costos.get(i) == costoMasCorto);
+        }
+    }
+
+    // Busqueda exhaustiva (DFS con backtracking) de todos los caminos simples
+    // entre ORIGEN y DESTINO. Con solo 4 sedes esto es barato, y nos deja
+    // mostrar las alternativas, no solo la respuesta final.
+    private void buscarCaminos(String actual, int costoActual, SimpleSet<String> visitadas,
+                                SimpleList<String> caminoActual, SimpleList<SimpleList<String>> caminos,
+                                SimpleList<Integer> costos) {
+        visitadas.add(actual);
+        caminoActual.add(actual);
+
+        if (actual.equals(DESTINO)) {
+            caminos.add(copiarCamino(caminoActual));
+            costos.add(costoActual);
+        } else {
+            SimpleList<Edge<String>> vecinos = grafo.getNeighbors(actual);
+            for (int i = 0; i < vecinos.size(); i++) {
+                Edge<String> vecino = vecinos.get(i);
+                if (!visitadas.contains(vecino.destination)) {
+                    buscarCaminos(vecino.destination, costoActual + vecino.weight, visitadas, caminoActual, caminos, costos);
+                }
+            }
+        }
+
+        // Backtracking: al volver, sacamos la sede actual para poder probar otras ramas
+        visitadas.remove(actual);
+        caminoActual.remove(caminoActual.size() - 1);
+    }
+
+    private SimpleList<String> copiarCamino(SimpleList<String> caminoActual) {
+        SimpleList<String> copia = new SimpleArrayList<>();
+        for (int i = 0; i < caminoActual.size(); i++) {
+            copia.add(caminoActual.get(i));
+        }
+        return copia;
+    }
+
+    private void imprimirCamino(int numero, SimpleList<String> camino, int costo, boolean esElMasCorto) {
+        System.out.print("Camino " + numero + ": ");
         for (int i = 0; i < camino.size(); i++) {
             System.out.print(camino.get(i));
             if (i != camino.size() - 1) System.out.print(" -> ");
         }
+        System.out.print(" (costo: " + costo + " km)");
+        if (esElMasCorto) System.out.print("  <-- el mas corto");
         System.out.println();
-        System.out.println("Distancia total: " + tabla.get(DESTINO).weight + " km");
-    }
-
-    // Recorre la tabla de Dijkstra de atras para adelante (de destino a origen,
-    // siguiendo el "anterior" de cada nodo) y arma el camino en el orden correcto
-    // usando una pila para invertirlo.
-    private SimpleList<String> reconstruirCamino(SimpleDictionary<String, Edge<String>> tabla, String destino) {
-        SimpleStack<String> pila = new SimpleLinkedStack<>();
-
-        String actual = destino;
-        while (actual != null) {
-            pila.push(actual);
-            actual = tabla.get(actual).destination;
-        }
-
-        SimpleList<String> camino = new SimpleArrayList<>();
-        while (!pila.isEmpty()) {
-            camino.add(pila.pop());
-        }
-        return camino;
     }
 
     private void mostrarGrafo() {
