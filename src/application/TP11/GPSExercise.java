@@ -49,13 +49,13 @@ public class GPSExercise extends Exercise {
         if (firstTime) {
             System.out.println("\nUn mago tiene una mision: llegar desde " + ORIGEN
                     + " hasta " + DESTINO + ". Para eso cuenta con varios caminos posibles.");
-            mostrarGrafo();
+            mostrarGrafoCompacto();
             firstTime = false;
         }
 
         System.out.println("\nSeleccione una opcion:"
                 + "\ncalcular: Ver los caminos posibles y cual conviene tomar"
-                + "\nmostrar: Mostrar el mapa completo"
+                + "\nmostrar: Mostrar el mapa completo, con el esfuerzo de cada tramo"
                 + "\nmm: Volver al menu principal");
 
         String userInput = scanner.nextLine().trim().toLowerCase();
@@ -65,7 +65,7 @@ public class GPSExercise extends Exercise {
                 calcularLogic();
                 break;
             case "mostrar":
-                mostrarGrafo();
+                mostrarGrafoCompleto();
                 break;
             case "mm":
                 running = false;
@@ -147,8 +147,30 @@ public class GPSExercise extends Exercise {
         System.out.println();
     }
 
-    private void mostrarGrafo() {
+    // Version corta para el mensaje de bienvenida: un lugar y todos sus
+    // vecinos en una sola linea, sin esfuerzo (el esfuerzo se ve al calcular,
+    // o con el comando "mostrar" si se quiere el detalle completo).
+    private void mostrarGrafoCompacto() {
         System.out.println("\nMapa del reino:");
+        SimpleList<String> vertices = grafo.vertices();
+
+        for (int i = 0; i < vertices.size(); i++) {
+            String origen = vertices.get(i);
+            SimpleList<Edge<String>> vecinos = grafo.getNeighbors(origen);
+
+            StringBuilder linea = new StringBuilder(origen + " -> ");
+            for (int j = 0; j < vecinos.size(); j++) {
+                linea.append(vecinos.get(j).destination);
+                if (j != vecinos.size() - 1) linea.append(", ");
+            }
+            System.out.println(linea);
+        }
+    }
+
+    // Version completa, arista por arista con su esfuerzo (formato pedido por
+    // la consigna). Se muestra con el comando "mostrar", no en la bienvenida.
+    private void mostrarGrafoCompleto() {
+        System.out.println("\nMapa del reino (detallado):");
         SimpleList<String> vertices = grafo.vertices();
 
         for (int i = 0; i < vertices.size(); i++) {

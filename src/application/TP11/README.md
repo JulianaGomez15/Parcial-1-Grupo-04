@@ -93,7 +93,8 @@ No se tocó ningún otro archivo ni lógica. Con este fix aplicado, `DijkstraSol
 - `buscarCaminos(...)`: búsqueda en profundidad (DFS) con backtracking sobre `Graph`, que encuentra todos los caminos simples (sin repetir lugares) entre `ORIGEN` y `DESTINO`, acumulando el esfuerzo de cada uno.
 - `copiarCamino(...)`: clona el camino acumulado en el momento de llegar al destino, para que el backtracking no lo pise después.
 - `imprimirCamino(...)`: imprime un camino numerado, con su esfuerzo, y marca si es el más conveniente.
-- `mostrarGrafo()`: imprime cada arista del mapa (`origen -> destino: esfuerzo`).
+- `mostrarGrafoCompacto()`: versión corta para la bienvenida — un lugar por línea con todos sus vecinos, sin esfuerzo.
+- `mostrarGrafoCompleto()`: versión arista por arista con su esfuerzo (formato que pide la consigna), se muestra con el comando `mostrar`.
 
 ## Manejo de errores e inputs inválidos
 - Cualquier texto que no sea `calcular`, `mostrar` o `mm` en el menú se rechaza con un mensaje, sin cortar la ejecución.
@@ -101,7 +102,7 @@ No se tocó ningún otro archivo ni lógica. Con este fix aplicado, `DijkstraSol
 - Si el destino fuera inalcanzable, se informa explícitamente en vez de intentar buscar caminos inexistentes (no aplica con el grafo actual, que está totalmente conectado, pero queda contemplado).
 
 ## Decisiones de UX visibles en TP11
-- El mapa se imprime completo apenas arranca el ejercicio, para que quede claro qué grafo se está usando antes de pedir cualquier cálculo.
+- El mapa se imprime en versión compacta (sin esfuerzo, un lugar por línea) apenas arranca el ejercicio, para que quede claro qué grafo se está usando sin saturar la pantalla de números. La versión completa, arista por arista con su esfuerzo — el formato que pide la consigna — está disponible con el comando `mostrar`.
 - Al calcular, se muestran **todas** las alternativas de camino, no solo la ganadora, para que se entienda por qué Dijkstra eligió la que eligió (por ejemplo, un camino directo de esfuerzo 9 le gana a uno de dos tramos que suma 10, aunque ambos sean válidos).
 - El menú deja explícito, en el propio texto de la opción, cuál es la misión que se va a resolver (origen → destino), ya que no se pide por teclado.
 - Se usa `->` en vez de la flecha Unicode del enunciado para evitar problemas de encoding en consolas que no manejen UTF-8.
