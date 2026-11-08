@@ -10,13 +10,13 @@ import application.graphModule.Graph;
 import application.graphModule.ListGraph;
 import application.listModule.SimpleArrayList;
 import application.listModule.SimpleList;
-import application.stackModule.SimpleLinkedStack;
-import application.stackModule.SimpleStack;
+import application.setModule.SimpleArraySet;
+import application.setModule.SimpleSet;
 
 public class GPSExercise extends Exercise {
 
-    private static final String ORIGEN = "UADE Belgrano";
-    private static final String DESTINO = "UADE Monserrat";
+    private static final String ORIGEN = "Torre del Mago";
+    private static final String DESTINO = "Castillo del Dragon";
 
     // Usamos el Graph/ListGraph y el DijkstraSolver tal cual estan en graphModule.
     private final Graph<String> grafo = new ListGraph<>();
@@ -26,18 +26,18 @@ public class GPSExercise extends Exercise {
     public GPSExercise(Scanner scanner) {
         super(scanner);
 
-        // Mapa pre-cargado con las sedes de UADE y las distancias (en km) entre ellas.
+        // Mapa pre-cargado del reino, con el esfuerzo (costo) de cada tramo.
         // Las conexiones son de ida y vuelta, por eso se cargan en ambos sentidos.
-        agregarConexion("UADE Belgrano", "UADE Recoleta", 6);
-        agregarConexion("UADE Belgrano", "UADE Monserrat", 9);
-        agregarConexion("UADE Recoleta", "UADE Monserrat", 4);
-        agregarConexion("UADE Monserrat", "UADE Pinamar", 340);
-        agregarConexion("UADE Recoleta", "UADE Pinamar", 345);
+        agregarConexion("Torre del Mago", "Bosque Encantado", 6);
+        agregarConexion("Torre del Mago", "Castillo del Dragon", 9);
+        agregarConexion("Bosque Encantado", "Castillo del Dragon", 4);
+        agregarConexion("Castillo del Dragon", "Pantano Oscuro", 340);
+        agregarConexion("Bosque Encantado", "Pantano Oscuro", 345);
     }
 
-    private void agregarConexion(String sedeA, String sedeB, int distancia) {
-        grafo.addEdge(sedeA, sedeB, distancia);
-        grafo.addEdge(sedeB, sedeA, distancia);
+    private void agregarConexion(String lugarA, String lugarB, int esfuerzo) {
+        grafo.addEdge(lugarA, lugarB, esfuerzo);
+        grafo.addEdge(lugarB, lugarA, esfuerzo);
     }
 
     @Override
@@ -47,14 +47,15 @@ public class GPSExercise extends Exercise {
 
     private void menuLogic() {
         if (firstTime) {
-            System.out.println("\nBienvenido al GPS de sedes UADE!");
+            System.out.println("\nUn mago tiene una mision: llegar desde " + ORIGEN
+                    + " hasta " + DESTINO + ". Para eso cuenta con varios caminos posibles.");
             mostrarGrafo();
             firstTime = false;
         }
 
         System.out.println("\nSeleccione una opcion:"
-                + "\ncalcular: Calcular el camino mas corto de " + ORIGEN + " a " + DESTINO
-                + "\nmostrar: Mostrar el grafo completo"
+                + "\ncalcular: Ver los caminos posibles y cual conviene tomar"
+                + "\nmostrar: Mostrar el mapa completo"
                 + "\nmm: Volver al menu principal");
 
         String userInput = scanner.nextLine().trim().toLowerCase();
@@ -76,48 +77,78 @@ public class GPSExercise extends Exercise {
     }
 
     private void calcularLogic() {
-        // DijkstraSolver.dijkstraAllNodes devuelve, para cada vertice, un Edge
-        // donde "destination" es el nodo anterior en el camino mas corto desde
-        // ORIGEN, y "weight" es el costo total acumulado hasta ese vertice.
+        // DijkstraSolver nos da el esfuerzo real mas bajo, para saber cual
+        // de todos los caminos que encontremos es el ganador.
         SimpleDictionary<String, Edge<String>> tabla = dijkstra.dijkstraAllNodes(ORIGEN, grafo);
 
         if (tabla.get(DESTINO).weight == Integer.MAX_VALUE) {
-            System.out.println("\nNo hay camino posible entre " + ORIGEN + " y " + DESTINO + ".");
+            System.out.println("\nEl mago no tiene forma de llegar de " + ORIGEN + " a " + DESTINO + ".");
             return;
         }
 
-        SimpleList<String> camino = reconstruirCamino(tabla, DESTINO);
+        int esfuerzoMasBajo = tabla.get(DESTINO).weight;
 
-        System.out.print("\nCamino mas corto: ");
+        // Buscamos TODOS los caminos simples (sin repetir lugares) entre origen y
+        // destino, para poder mostrar las alternativas y comparar su esfuerzo,
+        // en vez de solo mostrar el resultado final.
+        SimpleList<SimpleList<String>> caminos = new SimpleArrayList<>();
+        SimpleList<Integer> esfuerzos = new SimpleArrayList<>();
+        buscarCaminos(ORIGEN, 0, new SimpleArraySet<>(), new SimpleArrayList<>(), caminos, esfuerzos);
+
+        System.out.println("\nCaminos posibles para que el mago llegue de " + ORIGEN + " a " + DESTINO + ":");
+        for (int i = 0; i < caminos.size(); i++) {
+            imprimirCamino(i + 1, caminos.get(i), esfuerzos.get(i), esfuerzos.get(i) == esfuerzoMasBajo);
+        }
+    }
+
+    // Busqueda exhaustiva (DFS con backtracking) de todos los caminos simples
+    // entre ORIGEN y DESTINO. Con solo 4 lugares esto es barato, y nos deja
+    // mostrar las alternativas, no solo la respuesta final.
+    private void buscarCaminos(String actual, int esfuerzoActual, SimpleSet<String> visitados,
+                                SimpleList<String> caminoActual, SimpleList<SimpleList<String>> caminos,
+                                SimpleList<Integer> esfuerzos) {
+        visitados.add(actual);
+        caminoActual.add(actual);
+
+        if (actual.equals(DESTINO)) {
+            caminos.add(copiarCamino(caminoActual));
+            esfuerzos.add(esfuerzoActual);
+        } else {
+            SimpleList<Edge<String>> vecinos = grafo.getNeighbors(actual);
+            for (int i = 0; i < vecinos.size(); i++) {
+                Edge<String> vecino = vecinos.get(i);
+                if (!visitados.contains(vecino.destination)) {
+                    buscarCaminos(vecino.destination, esfuerzoActual + vecino.weight, visitados, caminoActual, caminos, esfuerzos);
+                }
+            }
+        }
+
+        // Backtracking: al volver, sacamos el lugar actual para poder probar otras ramas
+        visitados.remove(actual);
+        caminoActual.remove(caminoActual.size() - 1);
+    }
+
+    private SimpleList<String> copiarCamino(SimpleList<String> caminoActual) {
+        SimpleList<String> copia = new SimpleArrayList<>();
+        for (int i = 0; i < caminoActual.size(); i++) {
+            copia.add(caminoActual.get(i));
+        }
+        return copia;
+    }
+
+    private void imprimirCamino(int numero, SimpleList<String> camino, int esfuerzo, boolean esElMejor) {
+        System.out.print("Camino " + numero + ": ");
         for (int i = 0; i < camino.size(); i++) {
             System.out.print(camino.get(i));
             if (i != camino.size() - 1) System.out.print(" -> ");
         }
+        System.out.print(" (esfuerzo: " + esfuerzo + ")");
+        if (esElMejor) System.out.print("  <-- el camino indicado");
         System.out.println();
-        System.out.println("Distancia total: " + tabla.get(DESTINO).weight + " km");
-    }
-
-    // Recorre la tabla de Dijkstra de atras para adelante (de destino a origen,
-    // siguiendo el "anterior" de cada nodo) y arma el camino en el orden correcto
-    // usando una pila para invertirlo.
-    private SimpleList<String> reconstruirCamino(SimpleDictionary<String, Edge<String>> tabla, String destino) {
-        SimpleStack<String> pila = new SimpleLinkedStack<>();
-
-        String actual = destino;
-        while (actual != null) {
-            pila.push(actual);
-            actual = tabla.get(actual).destination;
-        }
-
-        SimpleList<String> camino = new SimpleArrayList<>();
-        while (!pila.isEmpty()) {
-            camino.add(pila.pop());
-        }
-        return camino;
     }
 
     private void mostrarGrafo() {
-        System.out.println("\nGrafo de sedes:");
+        System.out.println("\nMapa del reino:");
         SimpleList<String> vertices = grafo.vertices();
 
         for (int i = 0; i < vertices.size(); i++) {
