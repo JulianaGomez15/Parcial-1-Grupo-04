@@ -126,7 +126,7 @@ public class GPSExercise extends Exercise {
 
             for (int j = 0; j < vecinos.size(); j++) {
                 Edge<String> vecino = vecinos.get(j);
-                System.out.println(origen + " -> " + vecino.destination + ": " + vecino.weight);
+                System.out.println(origen + " -> " + vecino.destination + ": " + vecino.weight + " km");
             }
         }
     }
