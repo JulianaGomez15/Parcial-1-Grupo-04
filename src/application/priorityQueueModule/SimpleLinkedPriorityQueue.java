@@ -33,6 +33,14 @@ public class SimpleLinkedPriorityQueue <E> implements SimplePriorityQueue<E>{
                 current.next.prev = addedNode;
 
             current.next = addedNode;
+
+            // Fix: si el nodo nuevo quedo al final de la lista (no se inserto en
+            // el medio), "last" tiene que pasar a apuntar a el. Antes de este
+            // cambio "last" quedaba desactualizado, lo que corrompia la lista
+            // enlazada en los siguientes enqueue/dequeue (NullPointerException
+            // en escenarios con mas de un vecino por nodo, como en TP11 - GPS).
+            if (addedNode.next == null)
+                last = addedNode;
         }
 
         size++;
