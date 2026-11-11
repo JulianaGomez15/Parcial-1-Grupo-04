@@ -49,7 +49,7 @@ public class GPSExercise extends Exercise {
         if (firstTime) {
             System.out.println("\nUn mago tiene una mision: llegar desde " + ORIGEN
                     + " hasta " + DESTINO + ". Para eso cuenta con varios caminos posibles.");
-            mostrarGrafoCompleto();
+            mostrarGrafoCompacto();
             firstTime = false;
         }
 
