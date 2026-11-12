@@ -12,6 +12,7 @@ public class RecomendacionMusicalExercise extends Exercise {
     private final SistemaRecomendacion sistema = new SistemaRecomendacion();
     private Usuario usuarioLogueado;
     private boolean firstTime = true;
+    private boolean mostrarEscuchadas = false;
 
     public RecomendacionMusicalExercise(Scanner scanner) {
         super(scanner);
@@ -87,6 +88,9 @@ public class RecomendacionMusicalExercise extends Exercise {
             mostrarMenuInicio();
         } else {
             System.out.println("Generos preferidos: " + formatearGenerosFavoritos(usuarioLogueado));
+            if (mostrarEscuchadas) {
+                    mostrarCancionesEscuchadas(usuarioLogueado);
+            }
             mostrarMenuUsuario();
         }
     }
@@ -119,6 +123,7 @@ public class RecomendacionMusicalExercise extends Exercise {
                 + "\n4: Recomendar una cancion"
                 + "\n5: Registrar una cancion escuchada"
                 + "\n6: Cerrar sesion"
+                + "\n7: " + (mostrarEscuchadas ? "Ocultar" : "Mostrar") + " canciones escuchadas"
                 + "\nmm: Volver al menu principal");
         String opcion = scanner.nextLine().trim().toLowerCase();
 
@@ -140,6 +145,12 @@ public class RecomendacionMusicalExercise extends Exercise {
                 break;
             case "6":
                 cerrarSesion();
+                break;
+            case "7":
+                mostrarEscuchadas = !mostrarEscuchadas;
+                System.out.println(mostrarEscuchadas
+                    ? "\nAhora se muestran las canciones escuchadas."
+                    : "\nSe ocultaron las canciones escuchadas.");
                 break;
             case "mm":
                 running = false;
@@ -298,6 +309,18 @@ public class RecomendacionMusicalExercise extends Exercise {
             resultado.append(genero);
         }
         return resultado.toString();
+    }
+
+    private void mostrarCancionesEscuchadas(Usuario usuario) {
+        Cancion[] escuchadas = (Cancion[]) usuario.getCancionesEscuchadas().toArray(new Cancion[0]);
+        System.out.println("Canciones escuchadas:");
+        if (escuchadas.length == 0) {
+            System.out.println("  ninguna");
+        return;
+        }
+        for (Cancion c : escuchadas) {
+            System.out.println("  - " + c);
+        }
     }
 
     private <T> void mostrarConNumeracion(SimpleSet<T> elementos) {
