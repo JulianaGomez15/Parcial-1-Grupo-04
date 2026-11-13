@@ -160,6 +160,8 @@ public class BST<E extends Comparable<E>> {
     }
 
     protected int getNodeBalanceFactor(TreeNode<E> current){
+        // Si el nodo no existe, el AVL toma balance 0 y no rota.
+        if (current == null) return 0;
         return getNodeHeight(current.left) - getNodeHeight(current.right);
     }
 

@@ -24,7 +24,7 @@ public class RecursionExercise extends Exercise {
             case 3: fibonacciLogic(); break;
             case 4: exclusiveSumLogic(); break;
             case 5: pyramidLogic(); break;
-            case 6: palindromeLogic(); break;
+            case 6: isPalindromeLogic(); break;
             default: currentPhase = 1;
         }
     }
@@ -66,128 +66,146 @@ public class RecursionExercise extends Exercise {
         }
     }
 
+    private void isPalindromeLogic() {
+        System.out.println("\nIngrese una palabra:");
+        String palabra = scanner.nextLine().trim().toLowerCase();
 
-    // --- Palindrome ---
-    private void palindromeLogic() {
-        System.out.print("Ingresá una palabra o frase: ");
-        String userInput = scanner.nextLine().trim();
-
-        if (userInput.isEmpty()) {
-            System.out.println("No ingresaste nada.");
+        if (isPalindrome(palabra, 0)) {
+            System.out.println("La palabra \"" + palabra + "\" es un palíndromo.");
         } else {
-            if (isPalindrome(userInput)) {
-                System.out.println("\"" + userInput + "\" ES un palíndromo.");
-            } else {
-                System.out.println("\"" + userInput + "\" NO es un palíndromo.");
-            }
-            currentPhase = 1;
+            System.out.println("La palabra \"" + palabra + "\" no es un palíndromo.");
         }
+        currentPhase = 0;
+        return;
     }
 
-    boolean isPalindrome(String text) {
-        // Este metodo se encarga de acomodar el texto para mostrarlo en pantalla
-        return checkPalindrome(text.toLowerCase().replace(" ", ""));
+    private boolean isPalindrome(String palabra, int indice) {
+        if (palabra.length() == 1) {
+            return true;
+        }
+
+        if (indice == (palabra.length() / 2))
+            return true;
+
+        if (palabra.charAt(indice) == palabra.charAt(palabra.length() - 1-indice))
+            return isPalindrome(palabra, indice +1);
+
+        return false;
     }
 
-    private boolean checkPalindrome(String text) {
-        //Caso base: con 0 o 1 caracteres siempre va a ser palíndromo
-        if(text.length() <= 1) return true;
-
-        String first = text.substring(0, 1);
-        String last = text.substring(text.length()-1);
-        String middle = text.substring(1, text.length()-1);
-
-        //Caso base: si los extremos son distintos, no es palíndromo
-        if(!first.equals(last)) return false;
-
-        //Paso recursivo: prueba con el medio
-        else return checkPalindrome(middle);
-    }
-
-
-    // --- Pirámide ---
     private void pyramidLogic() {
+        int number = pedirEntero();
+        if (number == -1) {
+            currentPhase = 0;
+            return;
+        }
+
+        pyramid(number);
+        currentPhase = 0;
     }
 
+    private void pyramid(int number) {
+        pyramidRecursive(number, 1);
+    }
 
-    // --- Exclusive Sum ---
+    private void pyramidRecursive(int total, int level) {
+        if (level > total) {
+            return;
+        }
+
+        // Imprimir espacios
+        for (int i = 0; i < total - level; i++) {
+            System.out.print(" ");
+        }
+
+        // Imprimir X
+        for (int i = 0; i < level; i++) {
+            System.out.print("X");
+        }
+
+        System.out.println();
+
+        // Llamada recursiva
+        pyramidRecursive(total, level + 1);
+    }
+
     private void exclusiveSumLogic() {
-        System.out.print("Ingresá un número (1 a " + MAX_EXCLUSIVE_SUM + "): ");
-        String userInput = scanner.nextLine().trim();
-
-        try {
-            int n = Integer.parseInt(userInput);
-            if (n < 1 || n > MAX_EXCLUSIVE_SUM) {
-                System.out.println("El número tiene que estar entre 1 y " + MAX_EXCLUSIVE_SUM + ".");
-            } else {
-                System.out.println("Suma de enteros positivos menores a " + n + " = " + exclusiveSum(n));
-                currentPhase = 1;
-            }
-        } catch (NumberFormatException e) {
-            System.out.println("Eso no es un número entero válido.");
+        int number = pedirEntero();
+        if (number == -1) {
+            currentPhase = 0;
+            return;
         }
+
+        System.out.println("La suma exclusiva de " + number + " es: " + exclusiveSum(number));
+        currentPhase = 0;
     }
 
-    long exclusiveSum(int n) {
-        //Caso base
-        if(n <= 1) return 0;
-        //Paso recursivo
-        else return (n-1) + exclusiveSum(n-1);
+    private int exclusiveSum(int number) {
+        if (number <= 0) {
+            return 0;
+        }
+
+        if (number % 2 != 0) {
+            return exclusiveSum(number - 1);
+        }
+
+        return number + exclusiveSum(number - 1);
     }
 
-
-    // --- Fibonacci ---
     private void fibonacciLogic() {
-        System.out.print("Ingresá una posición (0 a " + MAX_FIBONACCI + "): ");
-        String userInput = scanner.nextLine().trim();
-
-        try {
-            int position = Integer.parseInt(userInput);
-            if (position < 0 || position > MAX_FIBONACCI) {
-                System.out.println("La posición tiene que estar entre 0 y " + MAX_FIBONACCI + ".");
-            } else {
-                System.out.println("Fibonacci(" + position + ") = " + fibonacci(position));
-                currentPhase = 1;
-            }
-        } catch (NumberFormatException e) {
-            System.out.println("No es un número válido.");
+        int number = pedirEntero();
+        if (number == -1) {
+            currentPhase = 0;
+            return;
         }
+
+        System.out.println("El numero Fibonacci en la posicion " + number + " es: " + fibonacci(number));
+        currentPhase = 0;
     }
 
-    long fibonacci(int position){
-        //Caso base
-        if(position == 0 || position == 1) return position;
+    private int fibonacci(int number) {
+        if (number <= 1) {
+            return number;
+        }
 
-        //Paso recursivo
-        else return fibonacci(position-1) + fibonacci(position-2);
+        return fibonacci(number - 1) + fibonacci(number - 2);
     }
 
-
-    // --- Factorial ---
     private void factorialLogic() {
-        System.out.print("Ingresá un número (0 a " + MAX_FACTORIAL + "): ");
-        String userInput = scanner.nextLine().trim();
-
-        try {
-            int n = Integer.parseInt(userInput);
-            if (n < 0 || n > MAX_FACTORIAL) {
-                System.out.println("El número tiene que estar entre 0 y " + MAX_FACTORIAL + ".");
-            } else {
-                System.out.println(n + "! = " + factorial(n));
-                currentPhase = 1;
-            }
-        } catch (NumberFormatException e) {
-            System.out.println("Eso no es un número entero válido.");
+        int number = pedirEntero();
+        if (number == -1) {
+            currentPhase = 0;
+            return;
         }
 
+        System.out.println("El factorial de " + number + " es: " + factorial(number));
+        currentPhase = 0;
     }
 
-    long factorial(int n) {
-        //Caso base
-        if(n == 0 || n == 1) return 1;
+    private int factorial(int number) {
+        if (number <= 1) {
+            return 1;
+        }
 
-        //Paso recursivo
-        else return n * factorial(n-1);
+        return number * factorial(number - 1);
     }
 
+    private int pedirEntero (){
+        System.out.println("\nIngrese un numero entero no negativo:");
+        int number;
+        try {
+            number = Integer.parseInt(scanner.nextLine().trim());
+        } catch (NumberFormatException e) {
+            System.out.println("Entrada invalida. Volviendo al menu.");
+            currentPhase = 0;
+            return -1;
+        }
+
+        if (number < 0) {
+            System.out.println("El numero debe ser no negativo. Volviendo al menu.");
+            currentPhase = 0;
+            return-1 ;
+        }
+        return number;
+    }
 }

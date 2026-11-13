@@ -8,8 +8,8 @@ public class Contacto implements Comparable<Contacto> {
     private String telefono;
     private String mail;
 
-    // Lo usa la agenda despues de validar los tres datos.
-    Contacto(String nombre, String telefono, String mail) {
+    // Publico para que la agenda del TP10 tambien pueda crear contactos.
+    public Contacto(String nombre, String telefono, String mail) {
         this.nombre = nombre.trim();
         this.telefono = telefono.trim();
         this.mail = mail.trim();

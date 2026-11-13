@@ -13,6 +13,9 @@ public class AVL<E extends Comparable<E>> extends BST<E> {
     }
 
     private TreeNode<E> rebalanceNode(TreeNode<E> current){
+        // null es el nodo ya borrado. Los que quedan se equilibran al subir.
+        if (current == null) return null;
+
         int bf = getNodeBalanceFactor(current);
 
         // Casos izquierdos

@@ -3,13 +3,15 @@ package application.TP10;
 import java.util.Scanner;
 
 import application.Exercise;
+import application.TP09.Contacto;
 import application.listModule.SimpleList;
 
+// Misma consola que el TP09. La opcion 10 del menu usa esta clase.
 public class ContactosAVLExercise extends Exercise {
 
     private static final String CANCELAR = "cancelar";
 
-    private final AgendaContactosAVL agenda = new AgendaContactosAVL();
+    private final AgendaContactos agenda = new AgendaContactos();
     private boolean firstTime = true;
 
     public ContactosAVLExercise(Scanner scanner) {
@@ -48,6 +50,7 @@ public class ContactosAVLExercise extends Exercise {
         }
 
         System.out.println("\nAGENDA: " + agenda.size() + (agenda.size() == 1 ? " contacto" : " contactos"));
+
         System.out.println("\nSeleccione una opcion:"
                 + "\n1: Crear contacto"
                 + "\n2: Ver todos los contactos"
@@ -57,14 +60,29 @@ public class ContactosAVLExercise extends Exercise {
                 + "\nmm: Volver al menu");
 
         String userInput = scanner.nextLine().trim().toLowerCase();
+
         switch (userInput) {
-            case "1": currentPhase = 1; break;
-            case "2": currentPhase = 2; break;
-            case "3": currentPhase = 3; break;
-            case "4": currentPhase = 4; break;
-            case "5": currentPhase = 5; break;
-            case "mm": running = false; break;
-            default: System.out.println("\nRespuesta invalida."); break;
+            case "1":
+                currentPhase = 1;
+                break;
+            case "2":
+                currentPhase = 2;
+                break;
+            case "3":
+                currentPhase = 3;
+                break;
+            case "4":
+                currentPhase = 4;
+                break;
+            case "5":
+                currentPhase = 5;
+                break;
+            case "mm":
+                running = false;
+                break;
+            default:
+                System.out.println("\nRespuesta invalida.");
+                break;
         }
     }
 
@@ -74,6 +92,8 @@ public class ContactosAVLExercise extends Exercise {
             volverAlMenu();
             return;
         }
+
+        // El nombre es la clave del arbol: se rechaza antes de pedir el resto.
         if (agenda.existe(nombre)) {
             System.out.println("\nYa existe un contacto con ese nombre.");
             volverAlMenu();
@@ -85,14 +105,16 @@ public class ContactosAVLExercise extends Exercise {
             volverAlMenu();
             return;
         }
+
         String mail = pedirMail();
         if (mail == null) {
             volverAlMenu();
             return;
         }
 
+        // Nombre, telefono y mail ya fueron validados, y el nombre no esta repetido.
         if (agenda.agregar(nombre, telefono, mail)) {
-            System.out.println("\nContacto creado. El AVL mantiene la agenda equilibrada.");
+            System.out.println("\nContacto creado. Va a aparecer en orden alfabetico al ver la agenda.");
         } else {
             System.out.println("\nNo se pudo crear el contacto.");
         }
@@ -105,7 +127,7 @@ public class ContactosAVLExercise extends Exercise {
     }
 
     private void editarLogic() {
-        ContactoAVL contacto = elegirContacto("editar");
+        Contacto contacto = elegirContacto("editar");
         if (contacto == null) {
             volverAlMenu();
             return;
@@ -118,27 +140,35 @@ public class ContactosAVLExercise extends Exercise {
             return;
         }
 
-        if (campo == 1) editarNombre(contacto);
-        else if (campo == 2) editarTelefono(contacto);
-        else editarMail(contacto);
+        if (campo == 1) {
+            editarNombre(contacto);
+        } else if (campo == 2) {
+            editarTelefono(contacto);
+        } else {
+            editarMail(contacto);
+        }
         volverAlMenu();
     }
 
-    private void editarNombre(ContactoAVL contacto) {
+    private void editarNombre(Contacto contacto) {
         String nombre = pedirTexto("\nIngrese el nuevo nombre");
         if (nombre == null) return;
+
         if (!sigueEnAgenda(contacto)) return;
 
         if (agenda.existe(nombre) && !nombre.equalsIgnoreCase(contacto.getNombre())) {
             System.out.println("\nYa existe un contacto con ese nombre.");
-        } else if (agenda.editarNombre(contacto, nombre)) {
+            return;
+        }
+
+        if (agenda.editarNombre(contacto, nombre)) {
             System.out.println("\nNombre actualizado: " + contacto.getNombre());
         } else {
             System.out.println("\nNo se pudo actualizar el nombre.");
         }
     }
 
-    private void editarTelefono(ContactoAVL contacto) {
+    private void editarTelefono(Contacto contacto) {
         String telefono = pedirTelefono();
         if (telefono == null) return;
         if (!sigueEnAgenda(contacto)) return;
@@ -150,7 +180,7 @@ public class ContactosAVLExercise extends Exercise {
         }
     }
 
-    private void editarMail(ContactoAVL contacto) {
+    private void editarMail(Contacto contacto) {
         String mail = pedirMail();
         if (mail == null) return;
         if (!sigueEnAgenda(contacto)) return;
@@ -163,16 +193,18 @@ public class ContactosAVLExercise extends Exercise {
     }
 
     private void borrarLogic() {
-        ContactoAVL contacto = elegirContacto("borrar");
+        Contacto contacto = elegirContacto("borrar");
         if (contacto == null) {
             volverAlMenu();
             return;
         }
+
         if (!confirmar("\nBorrar a " + contacto.getNombre() + "?")) {
             System.out.println("\nNo se borro el contacto.");
             volverAlMenu();
             return;
         }
+
         if (!sigueEnAgenda(contacto)) {
             volverAlMenu();
             return;
@@ -189,6 +221,7 @@ public class ContactosAVLExercise extends Exercise {
     private void cargarDatosLogic() {
         int agregados = agenda.cargarDatosDePrueba();
         int omitidos = agenda.cantidadDatosDePrueba() - agregados;
+
         if (agregados == 0) {
             System.out.println("\nNo se cargo ningun contacto nuevo: esos nombres ya estan en la agenda.");
         } else {
@@ -201,24 +234,26 @@ public class ContactosAVLExercise extends Exercise {
         volverAlMenu();
     }
 
-    private ContactoAVL elegirContacto(String accion) {
+    private Contacto elegirContacto(String accion) {
         if (agenda.isEmpty()) {
             System.out.println("\nNo hay contactos en la agenda.");
             return null;
         }
-        SimpleList<ContactoAVL> lista = mostrarContactos();
+
+        SimpleList<Contacto> lista = mostrarContactos();
         Integer posicion = pedirEntero("Seleccione el numero del contacto que quiere " + accion, 1, lista.size());
         if (posicion == null) return null;
         return lista.get(posicion - 1);
     }
 
-    private SimpleList<ContactoAVL> mostrarContactos() {
-        SimpleList<ContactoAVL> lista = agenda.listar();
-        System.out.println("\nCONTACTOS (orden alfabetico):");
+    private SimpleList<Contacto> mostrarContactos() {
+        SimpleList<Contacto> lista = agenda.listar();
+        System.out.println("\nCONTACTOS:");
         if (lista.isEmpty()) {
             System.out.println("La agenda esta vacia. Use la opcion 5 para cargar datos de prueba.");
             return lista;
         }
+
         for (int i = 0; i < lista.size(); i++) {
             System.out.println((i + 1) + ". " + lista.get(i));
         }
@@ -229,9 +264,11 @@ public class ContactosAVLExercise extends Exercise {
         while (true) {
             System.out.println("\nIngrese el telefono (\"" + CANCELAR + "\" para volver al menu):");
             System.out.println("Use numeros, espacios, +, - o parentesis. Minimo 6 digitos.");
+
             String userInput = scanner.nextLine().trim();
             if (userInput.equalsIgnoreCase(CANCELAR)) return null;
-            if (ContactoAVL.esTelefonoValido(userInput)) return userInput;
+            if (Contacto.esTelefonoValido(userInput)) return userInput;
+
             System.out.println("\nTelefono invalido.");
         }
     }
@@ -239,9 +276,11 @@ public class ContactosAVLExercise extends Exercise {
     private String pedirMail() {
         while (true) {
             System.out.println("\nIngrese el mail (\"" + CANCELAR + "\" para volver al menu):");
+
             String userInput = scanner.nextLine().trim();
             if (userInput.equalsIgnoreCase(CANCELAR)) return null;
-            if (ContactoAVL.esMailValido(userInput)) return userInput;
+            if (Contacto.esMailValido(userInput)) return userInput;
+
             System.out.println("\nMail invalido. Tiene que tener un @ y un dominio, por ejemplo ana@mail.com.");
         }
     }
@@ -256,7 +295,7 @@ public class ContactosAVLExercise extends Exercise {
         }
     }
 
-    private boolean sigueEnAgenda(ContactoAVL contacto) {
+    private boolean sigueEnAgenda(Contacto contacto) {
         if (agenda.existe(contacto.getNombre())) return true;
         System.out.println("\nEse contacto ya no esta en la agenda.");
         return false;
@@ -269,9 +308,11 @@ public class ContactosAVLExercise extends Exercise {
     private String pedirTexto(String mensaje) {
         while (true) {
             System.out.println(mensaje + " (\"" + CANCELAR + "\" para volver al menu):");
+
             String userInput = scanner.nextLine().trim();
             if (userInput.equalsIgnoreCase(CANCELAR)) return null;
             if (!userInput.isEmpty()) return userInput;
+
             System.out.println("\nEl texto no puede estar vacio.");
         }
     }
@@ -289,6 +330,7 @@ public class ContactosAVLExercise extends Exercise {
                 System.out.println("Respuesta invalida, ingrese un numero.");
                 continue;
             }
+
             if (numero < minimo || numero > maximo) {
                 System.out.println("Ingrese un numero entre " + minimo + " y " + maximo + ".");
                 continue;

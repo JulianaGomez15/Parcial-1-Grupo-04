@@ -4,79 +4,81 @@
 Algoritmos y Estructuras de Datos II
 
 ## Consigna del ejercicio
-Crear una aplicación de consola de agenda de contactos basada en un árbol AVL. Se pueden crear contactos con nombre, teléfono y mail, editar cualquiera de esos datos y borrar contactos. No puede haber dos contactos con el mismo nombre.
+Modificar la agenda de contactos del TP09 para que guarde los contactos en un AVL en lugar de un BST. Se pueden crear contactos con nombre, número y mail, editar cualquiera de esos datos o borrar el contacto. No puede haber dos contactos con el mismo nombre. El árbol se rebalancea en cada inserción y en cada remoción.
 
 ### Observaciones
-- Tiene que haber una opción para mostrar todos los contactos.
-- La agenda arranca vacía y ofrece una opción para cargar datos de prueba.
-- La aplicación valida los datos ingresados y muestra mensajes si no son válidos, sin terminar inesperadamente.
-- Las decisiones de interacción y experiencia de usuario se documentan para poder explicarlas durante el parcial.
+- Tiene que haber una opción que muestre todos los contactos.
+- Al iniciar, la estructura arranca vacía. Hay una opción del menú para cargar una base de datos pre-programada y facilitar el testeo.
+- La aplicación maneja inputs inválidos del usuario con `if`, le muestra el problema y lo deja corregirlo. No se usa `throw` para una validación de negocio.
+- El único `try/catch` es el de `NumberFormatException` al convertir un texto a número.
+- Las decisiones de experiencia de usuario se documentan para poder explicarlas en el parcial.
 
 ## Qué implementa este proyecto en TP10
-- Crear contactos con nombre, teléfono y mail.
-- Mostrar los contactos numerados y en orden alfabético.
+- Crear un contacto con nombre, teléfono y mail.
+- Ver todos los contactos en orden alfabético.
 - Editar el nombre, el teléfono o el mail de un contacto existente.
-- Borrar un contacto con confirmación.
-- Cargar cinco contactos de prueba, sin duplicar nombres existentes.
-- Usar un AVL para conservar el balance durante inserciones y remociones.
+- Borrar un contacto.
+- Cargar cinco contactos de prueba, sin pisar un nombre que ya esté cargado.
 
 ## Arquitectura de TP10
 1. **Modelo de dominio**
-   - `ContactoAVL`: contiene nombre, teléfono y mail; el nombre es la clave de comparación.
+   - `Contacto`: el de `application.TP09`. Nombre, teléfono y mail. El nombre es la clave de comparación.
 
-2. **Servicio de agenda**
-   - `AgendaContactosAVL`: valida operaciones y administra el árbol AVL y la lista ordenada de contactos.
+2. **Servicio**
+   - `AgendaContactos`: administra un `AVL<Contacto>`.
 
 3. **Interfaz de consola y orquestación**
-   - `ContactosAVLExercise`: presenta el menú, valida entradas y coordina las operaciones.
+   - `ContactosAVLExercise`: menú, validaciones, flujo por fases y salida por consola.
 
 TP10 se integra con la infraestructura general del proyecto:
-- `MainProgram` permite seleccionar `TP10 - Contactos AVL Exercise` con la opción 10.
+- `MainProgram` permite elegir `TP10 - Contactos AVL Exercise` (opción 10).
 - `Exercise` proporciona el ciclo de ejecución y el manejo de fases.
-- `application.treeModule.AVL` es la estructura arbórea compartida. TP10 la utiliza sin modificarla y adapta localmente la remoción para rebalancear de forma segura.
-- `SimpleList` / `SimpleArrayList` mantienen los contactos ordenados alfabéticamente para poder listarlos y seleccionarlos por posición.
+- `AVL` extiende a `BST` y es la estructura de la agenda.
+- El AVL es el único almacenamiento permanente. `inOrder()`, heredado del BST, devuelve una `SimpleArrayList` temporal en orden alfabético. `ContactosAVLExercise` la usa mediante `SimpleList` para mostrar y elegir contactos.
 
-## Uso del TDA AVL
-Cada contacto se almacena como un nodo del AVL. `ContactoAVL.compareTo` compara los nombres sin distinguir mayúsculas y minúsculas, por lo que nombres como `Ana Lopez` y `ana lopez` se consideran iguales.
+**Decisión de diseño:** se reemplazó el BST del TP09 por un AVL para que la búsqueda por nombre no se degrade cuando los contactos entran en orden. La lista de `inOrder()` existe solo durante la presentación y contiene referencias a los objetos del árbol.
 
-| Operación de la agenda | Operación utilizada |
+## Uso del TDA treeModule
+Cada nodo del árbol almacena un objeto `Contacto`. `Contacto.compareTo` compara el nombre sin distinguir mayúsculas, así que el AVL queda ordenado alfabéticamente y dos nombres iguales (por ejemplo `Ana` y `ana`) ocupan el mismo lugar. Además, después de cada alta y cada baja, el factor de balance de cada nodo queda en -1, 0 o 1.
+
+| Operación de la agenda | Operación del AVL |
 |---|---|
-| Crear | Inserta el contacto en el AVL y en la lista ordenada. |
-| Saber si un nombre existe | `contains` con un contacto auxiliar construido por `ContactoAVL.paraBuscar`. |
-| Recuperar un contacto | Búsqueda en la lista ordenada; el AVL compartido no devuelve el nodo. |
-| Ver todos | Recorrido de la lista en orden alfabético. |
-| Borrar | `remove` del AVL y eliminación del contacto de la lista. |
-| Cambiar el nombre | Elimina el contacto del árbol, cambia la clave y lo inserta de nuevo; también actualiza la lista. |
-| Cantidad | `listado.size()`. |
+| Crear | `insert`, que rebalancea al volver de la recursión |
+| Saber si el nombre ya existe | `contains` con un contacto auxiliar de búsqueda |
+| Recuperar el contacto guardado | `search`, que devuelve el objeto del árbol o `null` |
+| Ver todos | `inOrder`, que devuelve una lista temporal en orden alfabético |
+| Borrar | `remove`, que rebalancea al volver de la recursión |
+| Cambiar el nombre | `remove` + `insert`, para conservar el orden y el balance |
+| Cantidad | `size`, que devuelve `count` |
 
-**¿Por qué el nombre es la clave?** La consigna no permite contactos con el mismo nombre. El teléfono y el mail pueden repetirse y no determinan el orden de la agenda.
+`AVL` no reescribe la búsqueda ni el recorrido. Hace override de `insertRecursive` y de `removeRecursive`: llama a la versión del BST con `super` y después equilibra el nodo que vuelve. Esas dos funciones son `protected` en `BST` para poder sobreescribirlas. `getNodeBalanceFactor` también es `protected`, porque el AVL está en el mismo módulo y necesita el factor de cada nodo. Si el nodo que vuelve es `null` (se borró una hoja), no hay nada que rotar.
 
-**¿Por qué mantener una lista además del árbol?** El AVL compartido ofrece recorridos que imprimen o devuelven un orden por niveles, pero la interfaz necesita mostrar y numerar todos los contactos alfabéticamente. La lista conserva los mismos objetos en ese orden para listar, editar y borrar por posición.
+El factor es altura del hijo izquierdo menos altura del hijo derecho. Si es mayor que 1, el lado izquierdo está pesado: rotación simple a la derecha (LL) o doble izquierda-derecha (LR). Si es menor que -1, el lado derecho está pesado: rotación simple a la izquierda (RR) o doble derecha-izquierda (RL). Las rotaciones devuelven la nueva raíz de ese subárbol y el llamado anterior la guarda en `left` o `right`.
 
-**¿Por qué se quita y se reinserta al cambiar el nombre?** El nombre determina la ubicación del contacto en el árbol. Si se cambiara directamente, el nodo podría quedar en una rama incorrecta. Editar el teléfono o mail no afecta la clave y solo modifica el objeto almacenado.
+**¿Por qué el nombre es la clave?** La consigna prohíbe dos contactos con el mismo nombre. El teléfono y el mail se pueden repetir (dos personas pueden compartir un número) y no definen el orden.
 
-**Remoción y rebalanceo.** Las inserciones usan el AVL de `application.treeModule`. La agenda define un subtipo interno del AVL que sobrescribe la remoción y reequilibra los ancestros modificados; así puede manejar una rama vacía sin llamar al cálculo de balance sobre un nodo inexistente. Las rotaciones necesarias se implementan dentro de TP10, sin cambiar el AVL compartido.
+**¿Por qué in-order y no BFS?** `levelOrder` recorre por niveles y no garantiza el orden alfabético. En un AVL ordenado por nombre, `inOrder` visita izquierda, raíz y derecha, por lo que devuelve los contactos alfabéticamente. `inOrder()` crea y devuelve una `SimpleArrayList` temporal; `ContactosAVLExercise` la utiliza para mostrar y seleccionar contactos numerados. No se mantiene ninguna lista permanente paralela al árbol.
 
-**Búsqueda sin crear datos ficticios.** `ContactoAVL.paraBuscar` crea un objeto auxiliar que contiene únicamente el nombre. Se usa con `contains` para comprobar si existe una clave; el contacto completo se obtiene de la lista.
+**¿Por qué AVL y no el BST del TP09?** Un BST que recibe nombres casi ordenados se estira y la búsqueda se parece a recorrer una lista. El AVL corrige eso en la misma inserción y en la misma baja, así que buscar un nombre se mantiene en orden logarítmico. La agenda no cambia de operaciones: `insert`, `remove`, `contains` y `search` son las del BST, y el equilibrio lo agrega el override.
 
-## Validaciones e inputs inválidos
-La aplicación valida antes de cambiar la agenda y muestra los errores desde la consola:
+**¿Por qué cambiar el nombre saca el nodo y lo vuelve a insertar?** El árbol está ordenado por nombre. Si solo se cambiara el texto, el nodo quedaría en una rama que ya no corresponde. El teléfono y el mail no participan de `compareTo`, así que editarlos modifica el mismo objeto que está guardado en el nodo.
 
-| Situación | Resultado |
+**Búsqueda sin inventar un teléfono.** `Contacto.paraBuscar` crea un contacto auxiliar que solo tiene nombre; no se inserta en el árbol. `contains` determina si existe un contacto con ese nombre y `search` devuelve directamente el objeto almacenado en el AVL, con sus datos completos. Ambos utilizan `compareTo`, que compara por nombre.
+
+## Validaciones, sin `throw`
+Un dato incorrecto, un nombre repetido o un contacto que no está no se resuelven con `throw`. Se preguntan con un `if` antes de tocar el árbol. Si la operación no corresponde, los métodos de la agenda devuelven `false` o `null`, según su tipo de retorno, y la consola le explica al usuario qué pasó. El programa sigue en el menú.
+
+| Situación | Qué pasa |
 |---|---|
-| Nombre vacío | Se informa y no se crea ni modifica el contacto. |
-| Nombre repetido, incluso con distintas mayúsculas | Se rechaza para mantener la unicidad de la clave. |
-| Teléfono vacío o con caracteres no permitidos | Se vuelve a pedir el dato. Se aceptan dígitos, espacios, `+`, `-` y paréntesis, con al menos seis dígitos. |
-| Mail sin una sola `@` o sin dominio con punto | Se vuelve a pedir el dato. |
-| Agenda vacía al intentar editar o borrar | Se informa y no se opera sobre el árbol. |
-| Número no entero o fuera del rango | Se informa y se vuelve a pedir la selección. |
-| Operación cancelada | `cancelar` abandona la operación sin aplicar cambios. |
-| Nombre, teléfono o mail no válido al usar el servicio | El método devuelve `false` y la agenda no se modifica. |
-
-El único `try/catch` de la interfaz está en la conversión de texto a entero, para manejar `NumberFormatException`. Las validaciones de formato y rango se resuelven con condiciones antes de acceder a la lista o al árbol.
+| `insert` de un valor duplicado | El árbol no agrega otro nodo, porque `compareTo` devuelve 0. |
+| `insert` de `null` | No está protegido en el árbol; la agenda evita pasar contactos nulos al agregar. |
+| `remove` de un valor que no está | El árbol queda igual. |
+| `remove` de `null` | No está protegido en el árbol; la agenda valida antes de llamar a `remove`. |
+| `contains` / `search` con `null` | No están protegidos en el árbol; la agenda valida las entradas antes de invocarlos. |
+| Nombre vacío, teléfono o mail inválido, nombre repetido, contacto que no está | `AgendaContactos` devuelve `false` y no modifica el árbol. |
 
 ## Base de datos inicial
-La agenda comienza vacía. La opción 5 agrega los contactos de prueba que aún no estén cargados:
+La agenda arranca vacía. La opción 5 carga estos contactos, que son los mails del equipo:
 
 | Nombre | Teléfono | Mail |
 |---|---|---|
@@ -86,89 +88,104 @@ La agenda comienza vacía. La opción 5 agrega los contactos de prueba que aún 
 | Juliana Gomez | 11 5555-0104 | juliana.gomez@uade.edu.ar |
 | Diego Cinquino | 11 5555-0105 | diego.cinquino@uade.edu.ar |
 
-Al listar, el orden alfabético es: Betsabe, Diego, Juliana, Luka y Trinidad. Si se vuelve a cargar la base, los contactos existentes se omiten.
+Si alguno de esos nombres ya está, no se vuelve a insertar. Al ver la agenda el orden es alfabético: Betsabe, Diego, Juliana, Luka, Trinidad. No es el orden en que se cargaron: el AVL mantiene la propiedad de búsqueda al insertar, rebalancea si un lado queda más alto, y `inOrder()` devuelve los elementos ordenados.
 
 ## Opciones del menú
 | Opción | Acción |
 |---|---|
-| 1 | Crear contacto: solicita nombre, teléfono y mail. |
-| 2 | Ver todos los contactos, numerados y ordenados alfabéticamente. |
-| 3 | Editar el nombre, teléfono o mail del contacto seleccionado. |
-| 4 | Borrar el contacto seleccionado, con confirmación `s/n`. |
-| 5 | Cargar contactos de prueba que todavía no estén en la agenda. |
+| 1 | Crear contacto: pide nombre, teléfono y mail. |
+| 2 | Ver todos los contactos, numerados y en orden alfabético. |
+| 3 | Editar el nombre, el teléfono o el mail de un contacto de la lista. |
+| 4 | Borrar un contacto de la lista, con confirmación. |
+| 5 | Cargar los contactos de prueba que todavía no están. |
 | `mm` | Volver al menú principal del proyecto. |
 
 ## Rol de cada clase y métodos
 
-### `ContactoAVL`
-**Rol:** entidad de dominio y clave del árbol.
-- `ContactoAVL(String nombre, String telefono, String mail)`: construye el contacto con los datos validados y recorta espacios exteriores.
-- `paraBuscar(String nombre)`: crea una clave auxiliar que contiene solamente el nombre.
-- `esNombreValido(String nombre)`: verifica que el nombre no sea nulo ni vacío.
-- `esTelefonoValido(String telefono)`: valida los caracteres permitidos y exige al menos seis dígitos.
-- `esMailValido(String mail)`: exige una sola `@` y un dominio con punto.
-- `getNombre()`, `getTelefono()`, `getMail()`: devuelven los datos del contacto.
-- `setNombre(...)`, `setTelefono(...)`, `setMail(...)`: validan y actualizan el campo, o devuelven `false` si el valor no sirve.
-- `compareTo(ContactoAVL other)`: compara nombres sin distinguir mayúsculas.
-- `equals(Object other)` / `hashCode()`: definen identidad por nombre, sin distinguir mayúsculas.
-- `toString()`: muestra `Nombre | teléfono | mail`.
+### `Contacto`
+**Rol:** entidad de dominio y clave del árbol. Es `application.TP09.Contacto`; el TP10 lo importa y no tiene una copia propia.
+- `Contacto(String nombre, String telefono, String mail)`: público, para que la agenda del TP10 pueda crearlo. Lo usa cuando los tres datos ya son válidos. Recorta espacios con `trim`.
+- `paraBuscar(String nombre)`: contacto auxiliar, solo con nombre, para `contains` y `search`.
+- `esNombreValido(String nombre)`: no nulo y no vacío después de `trim`.
+- `esTelefonoValido(String telefono)`: solo dígitos, espacios, `+`, `-` y paréntesis, con al menos 6 dígitos.
+- `esMailValido(String mail)`: una sola `@`, texto antes y un dominio con un punto que no quede al borde. No se exige un dominio en particular, porque un contacto puede ser de cualquier mail.
+- `getNombre()`, `getTelefono()`, `getMail()`: devuelven los datos.
+- `setNombre(String nombre)`, `setTelefono(String telefono)`, `setMail(String mail)`: si el dato sirve, lo reemplazan y devuelven `true`. Si no, dejan el anterior y devuelven `false`.
+- `compareTo(Contacto other)`: ordena por nombre sin distinguir mayúsculas.
+- `equals(Object other)` / `hashCode()`: misma identidad que `compareTo`.
+- `toString()`: `Nombre | teléfono | mail`.
 
-### `AgendaContactosAVL`
-**Rol:** servicio que administra contactos mediante el AVL compartido y una lista ordenada para la interfaz.
+### `AgendaContactos`
+**Rol:** servicio que guarda los contactos en un AVL.
 
-**Atributos:** `contactos` (subtipo local de `application.treeModule.AVL<ContactoAVL>`), `listado` y `DATOS_DE_PRUEBA`.
+**Atributos:** `contactos` (`AVL<Contacto>`) y `DATOS_DE_PRUEBA`. No existe el atributo `listado`.
 
 **Métodos:**
-- `agregar(String nombre, String telefono, String mail)`: valida los campos, evita nombres duplicados e inserta el contacto.
-- `existe(String nombre)`: busca el nombre en el árbol; devuelve `false` si el texto no es válido.
-- `buscar(String nombre)`: devuelve el contacto completo o `null` si no existe.
-- `editarNombre(ContactoAVL contacto, String nuevoNombre)`: valida la clave nueva, evita duplicados y reinserta el contacto para conservar el orden del árbol.
-- `editarTelefono(...)` / `editarMail(...)`: valida y actualiza datos que no afectan la clave.
-- `borrar(ContactoAVL contacto)`: elimina el contacto del AVL y de la lista, si pertenece a la agenda.
-- `cargarDatosDePrueba()`: agrega los contactos de prueba todavía ausentes y devuelve la cantidad agregada.
-- `cantidadDatosDePrueba()`: devuelve la cantidad de filas de la base precargada.
-- `listar()`: devuelve una copia de la lista de contactos en orden alfabético.
-- `size()` / `isEmpty()`: informan el estado de la agenda.
-- `ContactTree.removeRecursive(...)`: remueve nodos y reequilibra los ancestros dentro del package TP10, sin modificar `treeModule.AVL`.
+- `agregar(String nombre, String telefono, String mail)`: devuelve `false` si el nombre está vacío, el teléfono o el mail no sirven, o el nombre ya existe. Si no, inserta y devuelve `true`.
+- `existe(String nombre)`: consulta el árbol por nombre. Con un nombre vacío devuelve `false`.
+- `buscar(String nombre)`: utiliza `search()` para devolver el contacto almacenado en el árbol; si no existe o el nombre es inválido, devuelve `null`.
+- `editarNombre(Contacto contacto, String nuevoNombre)`: devuelve `false` si el contacto no está, el nombre está vacío o ya lo tiene otro. Si solo cambia la capitalización, actualiza el texto. Si el nombre es otro, saca el nodo y lo inserta de nuevo.
+- `editarTelefono(Contacto contacto, String telefono)` / `editarMail(Contacto contacto, String mail)`: devuelven `false` si el contacto no está o el dato no sirve. Si sirve, cambian el objeto que ya está en el nodo.
+- `borrar(Contacto contacto)`: devuelve `false` y no llama a `remove` si el contacto no está. Si está, lo saca y devuelve `true`.
+- `cargarDatosDePrueba()`: inserta los contactos de la tabla que todavía no existen y devuelve cuántos agregó.
+- `cantidadDatosDePrueba()`: tamaño de esa tabla.
+- `listar()`: devuelve la lista temporal que genera `inOrder()`, en orden alfabético.
+- `size()`: cantidad de nodos del árbol, mediante `size()`. `isEmpty()`: pregunta al árbol.
+- `estaEnAgenda(Contacto contacto)`: `true` solo si el contacto no es nulo y está en el árbol.
 
 ### `ContactosAVLExercise`
-**Rol:** controlador de TP10; maneja el menú, la interacción y la presentación en consola.
+**Rol:** controlador de TP10; menú, validaciones y presentación.
 
-**Atributos:** `agenda`, `firstTime` y `CANCELAR`.
+**Atributos:** `agenda`, `firstTime` (mensaje de bienvenida), `CANCELAR`.
 
 **Métodos:**
-- `ContactosAVLExercise(Scanner scanner)`: inicializa el ejercicio con una agenda vacía.
-- `exerciseLogic()`: deriva a la fase correspondiente del menú.
-- `menuLogic()`: muestra cantidad de contactos y opciones disponibles.
-- `crearLogic()`: solicita y valida los datos para crear un contacto.
-- `verLogic()` / `mostrarContactos()`: muestra la agenda numerada en orden alfabético.
-- `editarLogic()`: permite elegir un contacto y el campo que se va a editar.
-- `editarNombre(...)`, `editarTelefono(...)`, `editarMail(...)`: solicitan el valor nuevo y delegan la actualización en la agenda.
-- `borrarLogic()`: selecciona el contacto, solicita confirmación y lo elimina.
-- `cargarDatosLogic()`: carga los datos de prueba e informa los contactos agregados u omitidos.
-- `elegirContacto(String accion)`: selecciona un contacto por número después de comprobar que la agenda no esté vacía.
-- `pedirTexto(...)`, `pedirTelefono()`, `pedirMail()`, `pedirEntero(...)`: solicitan datos con validación y opción de cancelar.
-- `confirmar(String mensaje)`: solicita confirmación `s/n` antes de borrar.
-- `volverAlMenu()`: restablece la fase del menú principal del ejercicio.
+- `ContactosAVLExercise(Scanner scanner)`: crea la agenda vacía. No carga los datos de prueba.
+- `exerciseLogic()`: despacha según la fase (menú, crear, ver, editar, borrar, cargar).
+- `menuLogic()`: muestra la cantidad de contactos y las opciones.
+- `crearLogic()`: pide los tres datos, rechaza el nombre repetido y crea el contacto.
+- `verLogic()`: lista la agenda.
+- `editarLogic()`: elige un contacto por número y después el campo a cambiar.
+- `editarNombre(Contacto contacto)`, `editarTelefono(Contacto contacto)`, `editarMail(Contacto contacto)`: piden el valor nuevo y delegan en la agenda.
+- `borrarLogic()`: elige un contacto, pide confirmación y lo borra.
+- `cargarDatosLogic()`: carga la base y, si entró alguno, muestra la agenda ordenada.
+- `elegirContacto(String accion)`: si la agenda está vacía avisa y no llama a `remove`. Si no, pide un número de la lista.
+- `sigueEnAgenda(Contacto contacto)`: antes de editar o borrar, confirma con `existe` que el nombre sigue en el árbol.
+- `mostrarContactos()`: lista numerada en orden alfabético.
+- `pedirTexto(String mensaje)`, `pedirTelefono()`, `pedirMail()`, `pedirEntero(...)`: entradas con reintento y `cancelar`.
+- `confirmar(String mensaje)`: acepta solo `s` o `n`.
+- `volverAlMenu()`: vuelve a la fase 0.
 
-## Decisiones de UX
-- **Arranque vacío:** el usuario ve el estado de la agenda y puede cargar los datos de prueba desde el menú.
-- **Selección numerada:** editar y borrar usan posiciones de la lista en lugar de volver a escribir nombres.
-- **Orden alfabético:** la agenda se muestra ordenada por nombre, independientemente del orden de inserción o de las rotaciones del AVL.
-- **Prevención de duplicados:** el nombre se valida antes de pedir teléfono y mail al crear.
-- **Confirmación al borrar:** evita eliminar un contacto por una selección accidental.
-- **Cancelación:** ingresar `cancelar` interrumpe el ingreso en curso sin guardar cambios.
-- **Edición segura de la clave:** al cambiar el nombre se quita y se vuelve a insertar el contacto para preservar el orden y balance del árbol.
+## Manejo de errores e inputs inválidos
+No se usa `throw` para un dato mal ingresado, un nombre repetido, una agenda vacía o una operación que no se puede hacer. Esos casos se anticipan con `if` / `else`. El usuario ve el mensaje y el programa sigue en el menú, para que pueda corregir.
+
+El único `try/catch` está en `pedirEntero`: `Integer.parseInt` puede lanzar `NumberFormatException` cuando el texto no es un número. Después de convertirlo, el rango se controla con un `if`, no con otra excepción.
+
+- Nombre vacío, teléfono inválido o mail inválido: se vuelven a pedir. No se crea el contacto.
+- Nombre repetido: se avisa y no se inserta. `Diego Cinquino` y `diego cinquino` cuentan como el mismo nombre.
+- Agenda vacía o número fuera de la lista: se avisa y no se llama a `remove` ni a `get` con un índice inválido.
+- Antes de editar o borrar, `sigueEnAgenda` pregunta si ese nombre sigue estando.
+- `cancelar` abandona la operación. Borrar pide `s` o `n`. Una opción de menú inválida vuelve a mostrar el menú.
+- La carga de prueba usa `agregar`, que devuelve `false` si el nombre ya existe, y sigue con el siguiente.
+
+`Contacto` y `AgendaContactos` no imprimen mensajes ni lanzan excepciones deliberadamente por validaciones de negocio. Según el método, devuelven `true`, `false`, `null`, un contacto, una lista o un número. La consola es la que muestra los mensajes. `insert` ignora claves duplicadas y `remove` ignora claves ausentes. El árbol no valida de forma general los argumentos `null`. `Contacto` se reutiliza del TP09. `AgendaContactos` queda en `application.TP10` porque arma un AVL, y así las dos agendas conviven.
+
+## Decisiones de UX visibles en TP10
+- **Arranque vacío y visible:** el primer mensaje dice que la agenda está vacía y que la opción 5 carga los datos de prueba. El menú siempre muestra cuántos contactos hay.
+- **Lista numerada temporal:** para editar o borrar se elige un número de la lista generada por `inOrder()`, no se reescribe el nombre. Así no falla por un espacio o una mayúscula de más. El nombre igual se pide al crear, porque ahí es un dato nuevo.
+- **El nombre repetido se corta temprano:** al crear, si el nombre ya existe no se piden teléfono ni mail.
+- **Ver después de cargar:** si la carga agregó contactos, se muestra la lista. El orden alfabético (y no el de la tabla) se ve en el momento.
+- **Confirmación solo al borrar:** crear y editar se pueden abandonar con `cancelar`. Borrar además pide `s`, porque no se puede deshacer.
+- **Misma persona, otra capitalización:** cambiar `luka ruiz diaz` por `Luka Ruiz Diaz` actualiza cómo se muestra, sin tratarlo como otro contacto.
 
 ## Pruebas manuales sugeridas
-1. Elegir TP10 desde la opción 10 del menú principal y verificar que la agenda arranque con cero contactos.
-2. Elegir la opción 2 y comprobar que la agenda vacía se informa sin causar errores.
-3. Cargar los datos de prueba y verificar que aparezcan cinco contactos ordenados alfabéticamente.
-4. Volver a cargar los datos y comprobar que no se dupliquen.
-5. Intentar crear `Diego Cinquino` y comprobar que se rechaza antes de solicitar teléfono y mail.
-6. Crear `Ana Lopez`, con teléfono `11 4444-0000` y mail `ana@mail.com`, y comprobar que aparece en el lugar alfabético correcto.
-7. Editar el teléfono o mail de Ana y verificar que el contacto permanezca en su posición.
-8. Cambiar el nombre de Ana a `Zoe Lopez` y comprobar que la lista la muestre en el lugar correspondiente.
-9. Intentar cambiar un nombre por uno ya existente y comprobar que el contacto conserve sus datos anteriores.
-10. Borrar un contacto y responder `n`; verificar que siga en la agenda. Repetir y responder `s`; debe desaparecer y reducirse el contador.
-11. Probar teléfono `abc`, mail `ana`, nombre vacío, selección no numérica, número fuera del rango, `cancelar` y una opción inexistente. La aplicación debe seguir funcionando.
+1. Entrar a TP10 y ver la agenda: tiene que decir 0 contactos.
+2. Elegir 2: tiene que avisar que está vacía, sin tirar una excepción.
+3. Elegir 5: tienen que aparecer 5 contactos, con Betsabe primero y Trinidad último.
+4. Volver a elegir 5: no tiene que duplicar a nadie.
+5. Crear `Diego Cinquino` después de cargar: tiene que rechazarlo. Crear `Ana Lopez` con teléfono `11 4444-0000` y mail `ana@mail.com`: tiene que quedar entre Betsabe y Diego.
+6. Editar el teléfono de Ana y ver la lista: el nombre sigue en el mismo lugar y el teléfono cambió.
+7. Renombrar a Ana como `Zoe Lopez` y ver la lista: tiene que pasar al final.
+8. Intentar renombrar a Zoe como `Luka Ruiz Diaz`: tiene que rechazarlo y Zoe tiene que seguir estando.
+9. Borrar un contacto y responder `n`: tiene que seguir en la lista. Repetirlo con `s`: tiene que desaparecer y el contador bajar.
+10. Probar nombre vacío, teléfono `abc`, mail `ana`, un número fuera de la lista, texto en vez de número, `cancelar` y una opción de menú inexistente. La aplicación tiene que seguir en el menú.
+
